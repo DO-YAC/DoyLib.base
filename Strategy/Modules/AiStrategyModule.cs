@@ -2,7 +2,9 @@ using System;
 using System.Linq;
 using doylib.Ai;
 using doylib.Enums;
+using doylib.Logging;
 using doylib.Models;
+using Microsoft.Extensions.Logging;
 
 namespace doylib.Strategy.Modules;
 
@@ -13,12 +15,14 @@ public sealed class AiStrategyModule : IStrategyModule, IStrategyWarmup
     private readonly float mMinScore;
     private readonly float mMinMargin;
     private readonly bool mApplySoftmax;
+    private readonly ILogger<AiStrategyModule> mLogger;
 
     public AiStrategyModule()
     {
         mMinScore = ParseFloatEnv("AI_MIN_SCORE", 0.0f);
         mMinMargin = ParseFloatEnv("AI_MIN_MARGIN", 0.0f);
         mApplySoftmax = ParseBoolEnv("AI_SCORES_SOFTMAX", true);
+        mLogger = LoggerProvider.CreateLogger<AiStrategyModule>();
     }
 
     public TradeAction Evaluate(Line line)
@@ -32,12 +36,12 @@ public sealed class AiStrategyModule : IStrategyModule, IStrategyWarmup
                 return TradeAction.NONE;
             }
 
-            Console.WriteLine($"[AI DEBUG] Raw scores: [{string.Join(", ", scores)}]");
+            mLogger.LogDebug("Raw scores: [{Scores}]", string.Join(", ", scores));
 
             if (mApplySoftmax)
             {
                 scores = Softmax(scores);
-                Console.WriteLine($"[AI DEBUG] After softmax: [{string.Join(", ", scores)}]");
+                mLogger.LogDebug("After softmax: [{Scores}]", string.Join(", ", scores));
             }
 
             var bestIdx = 0;
@@ -59,17 +63,18 @@ public sealed class AiStrategyModule : IStrategyModule, IStrategyWarmup
                 }
             }
 
-            Console.WriteLine($"[AI DEBUG] Best: {best} at index {bestIdx}, Second: {second}, MinScore: {mMinScore}, MinMargin: {mMinMargin}");
+            mLogger.LogDebug("Best: {Best} at index {BestIdx}, Second: {Second}, MinScore: {MinScore}, MinMargin: {MinMargin}",
+                best, bestIdx, second, mMinScore, mMinMargin);
 
             if (best < mMinScore)
             {
-                Console.WriteLine($"[AI DEBUG] Rejected: best score {best} < minScore {mMinScore}");
+                mLogger.LogDebug("Rejected: best score {Best} < minScore {MinScore}", best, mMinScore);
                 return TradeAction.NONE;
             }
 
             if ((best - second) < mMinMargin)
             {
-                Console.WriteLine($"[AI DEBUG] Rejected: margin {best - second} < minMargin {mMinMargin}");
+                mLogger.LogDebug("Rejected: margin {Margin} < minMargin {MinMargin}", best - second, mMinMargin);
                 return TradeAction.NONE;
             }
 
@@ -80,12 +85,12 @@ public sealed class AiStrategyModule : IStrategyModule, IStrategyWarmup
                 2 => TradeAction.BUY
             };
 
-            Console.WriteLine($"[AI DEBUG] Final decision: {action}");
+            mLogger.LogDebug("Final decision: {Action}", action);
             return action;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[AI DEBUG] Exception in Evaluate: {ex.Message}");
+            mLogger.LogError(ex, "Exception in Evaluate: {Message}", ex.Message);
             return TradeAction.NONE;
         }
     }
@@ -95,12 +100,11 @@ public sealed class AiStrategyModule : IStrategyModule, IStrategyWarmup
         try
         {
             TradingAiEngine.Instance.EnsureInitialized();
-            Console.WriteLine("[AI] AiStrategyModule warmup successful");
+            mLogger.LogInformation("AiStrategyModule warmup successful");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[ERROR] AiStrategyModule warmup failed: {ex.Message}");
-            Console.WriteLine($"[ERROR] Stack trace: {ex.StackTrace}");
+            mLogger.LogError(ex, "AiStrategyModule warmup failed: {Message}", ex.Message);
             throw;
         }
     }

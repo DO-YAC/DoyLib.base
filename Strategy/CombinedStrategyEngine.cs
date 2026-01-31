@@ -1,6 +1,8 @@
 using doylib.Enums;
+using doylib.Logging;
 using doylib.Models;
 using doylib.Strategy.Modules;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +13,7 @@ internal static class CombinedStrategyEngine
 {
     private static readonly object sLockObject = new();
     private static readonly List<IStrategyModule> sModules = new();
+    private static readonly ILogger sLogger = LoggerProvider.CreateLogger(nameof(CombinedStrategyEngine));
     private static bool sInitialised;
 
     public static void EnsureInitialised()
@@ -27,28 +30,29 @@ internal static class CombinedStrategyEngine
                 return;
             }
 
-            Console.WriteLine($"[DEBUG] ENABLE_STRATEGY={StrategyEnvironment.EnableRandomStrategy}, ENABLE_AI={StrategyEnvironment.EnableAi}");
+            sLogger.LogInformation("ENABLE_STRATEGY={EnableRandomStrategy}, ENABLE_AI={EnableAi}",
+                StrategyEnvironment.EnableRandomStrategy, StrategyEnvironment.EnableAi);
 
             if (StrategyEnvironment.EnableRandomStrategy)
             {
-                Console.WriteLine("[DEBUG] Adding RandomStrategyModule");
+                sLogger.LogInformation("Adding RandomStrategyModule");
                 sModules.Add(new RandomStrategyModule());
             }
 
             if (StrategyEnvironment.EnableAi)
             {
-                Console.WriteLine("[DEBUG] Adding AiStrategyModule");
+                sLogger.LogInformation("Adding AiStrategyModule");
                 try
                 {
                     sModules.Add(new AiStrategyModule());
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[ERROR] Failed to add AiStrategyModule: {ex.Message}");
+                    sLogger.LogError(ex, "Failed to add AiStrategyModule: {Message}", ex.Message);
                 }
             }
 
-            Console.WriteLine($"[DEBUG] Total modules registered: {sModules.Count}");
+            sLogger.LogInformation("Total modules registered: {ModuleCount}", sModules.Count);
             sInitialised = true;
         }
     }
@@ -91,15 +95,14 @@ internal static class CombinedStrategyEngine
             {
                 try
                 {
-                    Console.WriteLine($"[DEBUG] Calling Evaluate on module: {module.Name}");
+                    sLogger.LogDebug("Calling Evaluate on module: {ModuleName}", module.Name);
                     var result = module.Evaluate(line);
-                    Console.WriteLine($"[DEBUG] Module {module.Name} returned: {result}");
+                    sLogger.LogDebug("Module {ModuleName} returned: {Result}", module.Name, result);
                     return result;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[ERROR] Module {module.Name} threw exception: {ex.Message}");
-                    Console.WriteLine($"[ERROR] Stack trace: {ex.StackTrace}");
+                    sLogger.LogError(ex, "Module {ModuleName} threw exception: {Message}", module.Name, ex.Message);
                     return TradeAction.NONE;
                 }
             })
