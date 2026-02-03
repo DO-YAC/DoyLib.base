@@ -42,5 +42,5 @@ jobs:
       
       - name: Deploy DLL to server
         run: |
-          rsync -avz doylib.dll \
+          rsync -avz bin/Release/netstandard2.0/doylib.dll \
             ${{ vars.HOME_SERVER_USER }}@${{ vars.HOME_SERVER_HOST }}:/srv/doyac/DLLs/
