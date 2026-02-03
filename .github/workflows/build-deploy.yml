@@ -1,0 +1,46 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: doylib
+          path: bin/Release/netstandard2.0/doylib.dll
+
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.HOME_SERVER_SSH_KEY }}
+
+      - name: Add server to known_hosts
+        run: |
+          ssh-keyscan -H ${{ vars.HOME_SERVER_HOST }} >> ~/.ssh/known_hosts
+      
+      - name: Deploy DLL to server
+        run: |
+          rsync -avz doylib.dll \
+            ${{ vars.HOME_SERVER_USER }}@${{ vars.HOME_SERVER_HOST }}:/srv/doyac/DLLs/
