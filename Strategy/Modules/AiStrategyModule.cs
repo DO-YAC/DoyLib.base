@@ -41,7 +41,7 @@ public sealed class AiStrategyModule : IStrategyModule, IStrategyWarmup
             if (mApplySoftmax)
             {
                 scores = Softmax(scores);
-                mLogger.LogDebug("After softmax: [{Scores}]", string.Join(", ", scores));
+                mLogger.LogDebug("Scores after softmax: [{Scores}]", string.Join(", ", scores));
             }
 
             var bestIdx = 0;
@@ -63,18 +63,18 @@ public sealed class AiStrategyModule : IStrategyModule, IStrategyWarmup
                 }
             }
 
-            mLogger.LogDebug("Best: {Best} at index {BestIdx}, Second: {Second}, MinScore: {MinScore}, MinMargin: {MinMargin}",
+            mLogger.LogDebug("Best: '{Best}' at index '{BestIdx}', Second: '{Second}', MinScore: '{MinScore}', MinMargin: '{MinMargin}'",
                 best, bestIdx, second, mMinScore, mMinMargin);
 
             if (best < mMinScore)
             {
-                mLogger.LogDebug("Rejected: best score {Best} < minScore {MinScore}", best, mMinScore);
+                mLogger.LogDebug("Rejected: best score '{Best}' < minScore '{MinScore}'", best, mMinScore);
                 return TradeAction.NONE;
             }
 
             if ((best - second) < mMinMargin)
             {
-                mLogger.LogDebug("Rejected: margin {Margin} < minMargin {MinMargin}", best - second, mMinMargin);
+                mLogger.LogDebug("Rejected: margin '{Margin}' < minMargin '{MinMargin}'", best - second, mMinMargin);
                 return TradeAction.NONE;
             }
 
@@ -85,7 +85,7 @@ public sealed class AiStrategyModule : IStrategyModule, IStrategyWarmup
                 2 => TradeAction.BUY
             };
 
-            mLogger.LogDebug("Final decision: {Action}", action);
+            mLogger.LogDebug("Final AiStrategyModule decision: {Action}", action);
             return action;
         }
         catch (Exception ex)
