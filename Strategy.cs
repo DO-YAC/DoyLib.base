@@ -13,7 +13,7 @@ namespace doylib
     {
         public const string name = "RandomStrat";
 
-        private static readonly ILogger sLogger = LoggerProvider.CreateLogger(nameof(strategy));
+        private static readonly ILogger sLogger = LoggerProvider.CreateLogger<strategy>();
 
         static strategy()
         {
