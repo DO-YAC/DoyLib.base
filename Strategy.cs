@@ -1,6 +1,8 @@
-﻿using doylib.Enums;
+using doylib.Enums;
+using doylib.Logging;
 using doylib.Models;
 using doylib.Strategy;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -10,6 +12,8 @@ namespace doylib
     public class strategy
     {
         public const string name = "RandomStrat";
+
+        private static readonly ILogger sLogger = LoggerProvider.CreateLogger<strategy>();
 
         static strategy()
         {
@@ -33,27 +37,27 @@ namespace doylib
 
         public int Execute(JObject jLine)
         {
-            Console.WriteLine("[STRATEGY DEBUG] Execute called");
+            sLogger.LogDebug("Execute called");
 
             if (jLine is null)
             {
-                Console.WriteLine("[STRATEGY DEBUG] jLine is null");
+                sLogger.LogDebug("jLine is null");
                 throw new ArgumentNullException(nameof(jLine));
             }
 
-            Console.WriteLine($"[STRATEGY DEBUG] jLine: {jLine}");
+            sLogger.LogDebug("jLine: {JLine}", jLine);
 
             var line = jLine.ToObject<Line>();
 
             if (line is null)
             {
-                Console.WriteLine("[STRATEGY DEBUG] line is null after conversion");
+                sLogger.LogDebug("line is null after conversion");
                 throw new InvalidOperationException("Unable to convert input payload into a Line instance.");
             }
-            
-            Console.WriteLine($"[STRATEGY DEBUG] Calling CombinedStrategyEngine.Evaluate");
+
+            sLogger.LogDebug("Calling CombinedStrategyEngine.Evaluate");
             var decision = CombinedStrategyEngine.Evaluate(line);
-            Console.WriteLine($"[STRATEGY DEBUG] Got decision: {decision}");
+            sLogger.LogDebug("Got decision: {Decision}", decision);
 
             var result = decision switch
             {
@@ -62,9 +66,9 @@ namespace doylib
                 TradeAction.SELL => 2
             };
 
-            Console.WriteLine($"[STRATEGY DEBUG] Returning: {result}");
+            sLogger.LogDebug("Returning: {Result}", result);
             return result;
         }
     }
-    
+
 }
