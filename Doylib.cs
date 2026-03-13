@@ -11,33 +11,19 @@ namespace doylib
 {
     public class Doylib
     {
-        public const string name = "RandomStrat";
-
         private static readonly ILogger sLogger = LoggerProvider.CreateLogger<Doylib>();
 
         static Doylib()
         {
-            CombinedStrategyEngine.EnsureInitialised();
-        }
-
-        public static void EnsureAiReady()
-        {
-            CombinedStrategyEngine.Warmup();
-        }
-
-        public static void RegisterModule(IStrategyModule module)
-        {
-            CombinedStrategyEngine.RegisterModule(module);
-        }
-
-        public static IReadOnlyList<string> GetActiveModuleNames()
-        {
-            return CombinedStrategyEngine.GetActiveModuleNames();
         }
 
         public int Execute(JObject jLine)
         {
-            sLogger.LogDebug("Execute called");
+            if (sLogger.IsEnabled(LogLevel.Debug))
+            {
+                sLogger.LogDebug("Execute called");    
+            }
+            
 
             if (jLine is null)
             {
@@ -45,7 +31,10 @@ namespace doylib
                 throw new ArgumentNullException(nameof(jLine));
             }
 
-            sLogger.LogDebug("jLine: {JLine}", jLine);
+            if (sLogger.IsEnabled(LogLevel.Debug))
+            {
+                sLogger.LogDebug("jLine: {JLine}", jLine);    
+            }
 
             var line = jLine.ToObject<Line>();
 
@@ -54,15 +43,15 @@ namespace doylib
                 sLogger.LogDebug("line is null after conversion");
                 throw new InvalidOperationException("Unable to convert input payload into a Line instance.");
             }
-
-            sLogger.LogDebug("Calling CombinedStrategyEngine.Evaluate");
-            var decision = CombinedStrategyEngine.Evaluate(line);
-            sLogger.LogDebug("Got decision: {Decision}", decision);
-
-            var result = (int)decision;
-
-            sLogger.LogDebug("Returning: {Result}", result);
-            return result;
+            
+            var decision = StrategyEngine.Evaluate(line);
+                
+            if (sLogger.IsEnabled(LogLevel.Debug))
+            {
+                sLogger.LogDebug("Got decision: {Decision}", decision);
+            }
+            
+            return (int)decision;
         }
     }
 
