@@ -2,10 +2,12 @@ using doylib.Enums;
 using doylib.Logging;
 using doylib.Models;
 using doylib.Strategy;
+using doylib.Strategy.Modules;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace doylib
 {
@@ -13,9 +15,10 @@ namespace doylib
     {
         private static readonly ILogger sLogger = LoggerProvider.CreateLogger<Doylib>();
 
-        static Doylib()
+        private static readonly List<IStrategyModule> sModules = new()
         {
-        }
+            new ExampleModule(),
+        };
 
         public int Execute(JObject jLine)
         {
@@ -44,7 +47,7 @@ namespace doylib
                 throw new InvalidOperationException("Unable to convert input payload into a Line instance.");
             }
             
-            var decision = StrategyEngine.Evaluate(line);
+            var decision = StrategyEngine.Evaluate(line, sModules);
                 
             if (sLogger.IsEnabled(LogLevel.Debug))
             {
