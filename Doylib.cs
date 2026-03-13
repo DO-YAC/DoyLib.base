@@ -9,13 +9,13 @@ using System.Collections.Generic;
 
 namespace doylib
 {
-    public class strategy
+    public class Doylib
     {
         public const string name = "RandomStrat";
 
-        private static readonly ILogger sLogger = LoggerProvider.CreateLogger<strategy>();
+        private static readonly ILogger sLogger = LoggerProvider.CreateLogger<Doylib>();
 
-        static strategy()
+        static Doylib()
         {
             CombinedStrategyEngine.EnsureInitialised();
         }
@@ -59,12 +59,7 @@ namespace doylib
             var decision = CombinedStrategyEngine.Evaluate(line);
             sLogger.LogDebug("Got decision: {Decision}", decision);
 
-            var result = decision switch
-            {
-                TradeAction.NONE => 0,
-                TradeAction.BUY => 1,
-                TradeAction.SELL => 2
-            };
+            var result = (int)decision;
 
             sLogger.LogDebug("Returning: {Result}", result);
             return result;

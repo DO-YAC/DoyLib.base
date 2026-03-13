@@ -1,7 +1,8 @@
 namespace doylib.Enums;
 
 // Das Model kann keine negativen Zahlen nehmen.
-// Das Model braucht auch keine Close Action.
+// Das Model braucht keine Close Action.
+// TODO: Replace with Nuget Package
 public enum TradeAction
 {
     NONE = 0,

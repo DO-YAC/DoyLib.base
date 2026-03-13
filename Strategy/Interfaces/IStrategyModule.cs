@@ -7,4 +7,5 @@ public interface IStrategyModule
 {
     string Name { get; }
     TradeAction Evaluate(Line line);
+    void Warmup();
 }
