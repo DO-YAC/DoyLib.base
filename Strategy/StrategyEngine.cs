@@ -8,21 +8,28 @@ namespace doylib.Strategy;
 
 public class StrategyEngine
 {
-    public static TradeAction Evaluate(Line line, List<IStrategyModule> modules)
+    private static readonly List<IStrategyModule> sModules = new();
+
+    public static void Register(IStrategyModule module)
+    {
+        sModules.Add(module);
+    }
+
+    public static TradeAction Evaluate(Line line)
     {
         const double quorum = 0.5;
-        var results = new TradeAction[modules.Count];
-        
-        Parallel.For(0, modules.Count, i =>
+        var results = new TradeAction[sModules.Count];
+
+        Parallel.For(0, sModules.Count, i =>
         {
-            results[i] = modules[i].Evaluate(line);
+            results[i] = sModules[i].Evaluate(line);
         });
 
         var topResult = results
             .CountBy(a => a)
             .MaxBy(a => a.Value);
-        
-        if ((double)topResult.Value / modules.Count >= quorum)
+
+        if ((double)topResult.Value / sModules.Count >= quorum)
         {
             return topResult.Key;
         }
