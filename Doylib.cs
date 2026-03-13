@@ -15,7 +15,6 @@ namespace doylib
         static Doylib()
         {
             StrategyEngine.Register(new ExampleModule());
-            StrategyEngine.Register(new ExampleModule());
         }
 
         public int Execute(JObject jLine)
