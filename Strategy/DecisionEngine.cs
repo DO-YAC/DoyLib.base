@@ -6,16 +6,16 @@ using doylib.Models;
 
 namespace doylib.Strategy;
 
-public class StrategyEngine
+internal class DecisionEngine
 {
     private static readonly List<IStrategyModule> sModules = new();
 
-    public static void Register(IStrategyModule module)
+    internal static void Register(IStrategyModule module)
     {
         sModules.Add(module);
     }
 
-    public static TradeAction Evaluate(Line line)
+    internal static TradeAction Evaluate(Line line)
     {
         const double quorum = 0.5;
         var results = new TradeAction[sModules.Count];
@@ -29,11 +29,25 @@ public class StrategyEngine
             .CountBy(a => a)
             .MaxBy(a => a.Value);
 
-        if ((double)topResult.Value / sModules.Count >= quorum)
+        if ((double)topResult.Value / sModules.Count > quorum)
         {
             return topResult.Key;
         }
 
         return TradeAction.NONE;
+    }
+
+    internal static void Warmup()
+    {
+        Parallel.ForEach(sModules, module =>
+            {
+                module.Warmup();
+            }
+        );
+    }
+
+    internal static string[] GetActiveModules()
+    {
+        return [.. sModules.Select(module => module.Name)];
     }
 }

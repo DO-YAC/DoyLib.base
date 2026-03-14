@@ -14,7 +14,7 @@ namespace doylib
 
         static Doylib()
         {
-            StrategyEngine.Register(new ExampleModule());
+            DecisionEngine.Register(new ExampleModule());
         }
 
         public int Execute(JObject jLine)
@@ -44,7 +44,7 @@ namespace doylib
                 throw new InvalidOperationException("Unable to convert input payload into a Line instance.");
             }
             
-            var decision = StrategyEngine.Evaluate(line);
+            var decision = DecisionEngine.Evaluate(line);
                 
             if (sLogger.IsEnabled(LogLevel.Debug))
             {
@@ -52,6 +52,16 @@ namespace doylib
             }
             
             return (int)decision;
+        }
+        
+        public void Warmup()
+        {
+            DecisionEngine.Warmup();
+        }
+        
+        public string[] GetActiveModules()
+        {
+            return DecisionEngine.GetActiveModules();
         }
     }
 
