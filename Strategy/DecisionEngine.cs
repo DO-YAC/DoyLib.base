@@ -17,6 +17,11 @@ internal class DecisionEngine
 
     internal static TradeAction Evaluate(Line line)
     {
+        if (sModules.Count == 0)
+        {
+            return TradeAction.NONE;
+        }
+
         const double quorum = 0.5;
         var results = new TradeAction[sModules.Count];
 
