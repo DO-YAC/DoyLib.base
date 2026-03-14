@@ -27,7 +27,14 @@ internal class DecisionEngine
 
         Parallel.For(0, sModules.Count, i =>
         {
-            results[i] = sModules[i].Evaluate(line);
+            try
+            {
+                results[i] = sModules[i].Evaluate(line);
+            }
+            catch
+            {
+                results[i] = TradeAction.NONE;
+            }
         });
 
         var topResult = results
@@ -46,7 +53,14 @@ internal class DecisionEngine
     {
         Parallel.ForEach(sModules, module =>
             {
-                module.Warmup();
+                try
+                {
+                    module.Warmup();
+                }
+                catch
+                {
+                    // Ignore module warmup failures to keep overall warmup resilient
+                }
             }
         );
     }
