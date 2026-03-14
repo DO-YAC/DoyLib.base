@@ -1,7 +1,7 @@
 using doylib.Enums;
 using doylib.Models;
 
-namespace doylib.Strategy;
+namespace doylib.Engine;
 
 public interface IStrategyModule
 {

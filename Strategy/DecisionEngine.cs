@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using doylib.Enums;
 using doylib.Models;
 
-namespace doylib.Strategy;
+namespace doylib.Engine;
 
 internal class DecisionEngine
 {

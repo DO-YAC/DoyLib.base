@@ -1,7 +1,7 @@
 using doylib.Logging;
 using doylib.Models;
-using doylib.Strategy;
-using doylib.Strategy.Modules;
+using doylib.Engine;
+using doylib.Engine.Modules;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;

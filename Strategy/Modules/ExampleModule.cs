@@ -2,9 +2,7 @@ using System;
 using doylib.Enums;
 using doylib.Models;
 
-
-namespace doylib.Strategy.Modules;
-
+namespace doylib.Engine.Modules;
 
 /// <summary>
 /// A module only needs to implement <see cref="Evaluate"/> and <see cref="Warmup"/>.
