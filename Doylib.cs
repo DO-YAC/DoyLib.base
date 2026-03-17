@@ -13,10 +13,10 @@ namespace doylib
         private readonly ILogger mLogger;
         private readonly DecisionEngine mDecisionEngine;
 
-        public Doylib()
+        public Doylib(DoylibSettings settings)
         {
             mLogger = LoggerProvider.CreateLogger<Doylib>();
-            mDecisionEngine = new DecisionEngine();
+            mDecisionEngine = new DecisionEngine(settings);
             mDecisionEngine.Register(new ExampleModule());
         }
 

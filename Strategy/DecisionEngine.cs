@@ -13,10 +13,12 @@ internal class DecisionEngine
 {
     private readonly List<IStrategyModule> mModules = new();
     private readonly ILogger mLogger;
+    private readonly double mQuorum;
 
-    internal DecisionEngine()
+    internal DecisionEngine(DoylibSettings settings)
     {
         mLogger = LoggerProvider.CreateLogger<DecisionEngine>();
+        mQuorum = settings.Quorum;
     }
 
     internal void Register(IStrategyModule module)
@@ -31,7 +33,6 @@ internal class DecisionEngine
             return TradeAction.NONE;
         }
 
-        const double quorum = 0.5;
         var results = new TradeAction[mModules.Count];
 
         Parallel.For(0, mModules.Count, i =>
@@ -50,7 +51,7 @@ internal class DecisionEngine
             .CountBy(a => a)
             .MaxBy(a => a.Value);
 
-        if ((double)topResult.Value / mModules.Count > quorum)
+        if ((double)topResult.Value / mModules.Count > mQuorum)
         {
             return topResult.Key;
         }
