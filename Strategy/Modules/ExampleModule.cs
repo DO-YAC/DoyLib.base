@@ -4,10 +4,6 @@ using doylib.Models;
 
 namespace doylib.Engine.Modules;
 
-/// <summary>
-/// A module only needs to implement <see cref="Evaluate"/> and <see cref="Warmup"/>.
-/// If a module requires more than <see cref="Evaluate"/> and <see cref="Warmup"/>, it is already too complex.
-/// </summary>
 internal class ExampleModule : IStrategyModule
 {
     public string Name => "ExampleModule";
