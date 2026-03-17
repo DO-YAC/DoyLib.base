@@ -10,45 +10,48 @@ namespace doylib
 {
     public class Doylib
     {
-        private static readonly ILogger sLogger = LoggerProvider.CreateLogger<Doylib>();
+        private readonly ILogger mLogger;
+        private readonly DecisionEngine mDecisionEngine;
 
-        static Doylib()
+        public Doylib()
         {
-            DecisionEngine.Register(new ExampleModule());
+            mLogger = LoggerProvider.CreateLogger<Doylib>();
+            mDecisionEngine = new DecisionEngine();
+            mDecisionEngine.Register(new ExampleModule());
         }
 
         public int Execute(JObject jLine)
         {
-            if (sLogger.IsEnabled(LogLevel.Debug))
+            if (mLogger.IsEnabled(LogLevel.Debug))
             {
-                sLogger.LogDebug("Execute called");    
+                mLogger.LogDebug("Execute called");    
             }
             
 
             if (jLine is null)
             {
-                sLogger.LogDebug("jLine is null");
+                mLogger.LogDebug("jLine is null");
                 throw new ArgumentNullException(nameof(jLine));
             }
 
-            if (sLogger.IsEnabled(LogLevel.Debug))
+            if (mLogger.IsEnabled(LogLevel.Debug))
             {
-                sLogger.LogDebug("jLine: {JLine}", jLine);    
+                mLogger.LogDebug("jLine: {JLine}", jLine);    
             }
 
             var line = jLine.ToObject<Line>();
 
             if (line is null)
             {
-                sLogger.LogDebug("line is null after conversion");
+                mLogger.LogDebug("line is null after conversion");
                 throw new InvalidOperationException("Unable to convert input payload into a Line instance.");
             }
             
-            var decision = DecisionEngine.Evaluate(line);
+            var decision = mDecisionEngine.Evaluate(line);
                 
-            if (sLogger.IsEnabled(LogLevel.Debug))
+            if (mLogger.IsEnabled(LogLevel.Debug))
             {
-                sLogger.LogDebug("Got decision: {Decision}", decision);
+                mLogger.LogDebug("Got decision: {Decision}", decision);
             }
             
             return (int)decision;
@@ -56,12 +59,12 @@ namespace doylib
         
         public void Warmup()
         {
-            DecisionEngine.Warmup();
+            mDecisionEngine.Warmup();
         }
         
         public string[] GetActiveModules()
         {
-            return DecisionEngine.GetActiveModules();
+            return mDecisionEngine.GetActiveModules();
         }
     }
 

@@ -11,29 +11,34 @@ namespace doylib.Engine;
 
 internal class DecisionEngine
 {
-    private static readonly List<IStrategyModule> sModules = new();
-    private static readonly ILogger sLogger = LoggerProvider.CreateLogger<DecisionEngine>();
+    private readonly List<IStrategyModule> mModules = new();
+    private readonly ILogger mLogger;
 
-    internal static void Register(IStrategyModule module)
+    internal DecisionEngine()
     {
-        sModules.Add(module);
+        mLogger = LoggerProvider.CreateLogger<DecisionEngine>();
     }
 
-    internal static TradeAction Evaluate(Line line)
+    internal void Register(IStrategyModule module)
     {
-        if (sModules.Count == 0)
+        mModules.Add(module);
+    }
+
+    internal TradeAction Evaluate(Line line)
+    {
+        if (mModules.Count == 0)
         {
             return TradeAction.NONE;
         }
 
         const double quorum = 0.5;
-        var results = new TradeAction[sModules.Count];
+        var results = new TradeAction[mModules.Count];
 
-        Parallel.For(0, sModules.Count, i =>
+        Parallel.For(0, mModules.Count, i =>
         {
             try
             {
-                results[i] = sModules[i].Evaluate(line);
+                results[i] = mModules[i].Evaluate(line);
             }
             catch
             {
@@ -45,7 +50,7 @@ internal class DecisionEngine
             .CountBy(a => a)
             .MaxBy(a => a.Value);
 
-        if ((double)topResult.Value / sModules.Count > quorum)
+        if ((double)topResult.Value / mModules.Count > quorum)
         {
             return topResult.Key;
         }
@@ -53,9 +58,9 @@ internal class DecisionEngine
         return TradeAction.NONE;
     }
 
-    internal static void Warmup()
+    internal void Warmup()
     {
-        Parallel.ForEach(sModules, module =>
+        Parallel.ForEach(mModules, module =>
             {
                 try
                 {
@@ -63,14 +68,14 @@ internal class DecisionEngine
                 }
                 catch (Exception ex)
                 {
-                    sLogger.LogWarning(ex, "Warmup failed for module '{ModuleName}'", module.Name);
+                    mLogger.LogWarning(ex, "Warmup failed for module '{ModuleName}'", module.Name);
                 }
             }
         );
     }
 
-    internal static string[] GetActiveModules()
+    internal string[] GetActiveModules()
     {
-        return [.. sModules.Select(module => module.Name)];
+        return [.. mModules.Select(module => module.Name)];
     }
 }
