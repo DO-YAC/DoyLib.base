@@ -1,14 +1,18 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using doylib.Enums;
+using doylib.Logging;
 using doylib.Models;
+using Microsoft.Extensions.Logging;
 
 namespace doylib.Engine;
 
 internal class DecisionEngine
 {
     private static readonly List<IStrategyModule> sModules = new();
+    private static readonly ILogger sLogger = LoggerProvider.CreateLogger<DecisionEngine>();
 
     internal static void Register(IStrategyModule module)
     {
@@ -57,9 +61,9 @@ internal class DecisionEngine
                 {
                     module.Warmup();
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Ignore module warmup failures to keep overall warmup resilient
+                    sLogger.LogWarning(ex, "Warmup failed for module '{ModuleName}'", module.Name);
                 }
             }
         );
