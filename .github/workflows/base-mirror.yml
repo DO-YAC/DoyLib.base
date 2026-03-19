@@ -15,7 +15,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Push to public repo
+      - name: Push to public repoo
         run: |
           git remote add public https://x-access-token:${{ secrets.DOYLIB_BASE_TOKEN }}@github.com/DO-YAC/doylib.base.git
           git push public main --force
