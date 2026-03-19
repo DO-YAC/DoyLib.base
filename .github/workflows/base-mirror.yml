@@ -1,0 +1,20 @@
+name: Mirror to Public Repo
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Push to public repo
+        run: |
+          git remote add public https://DO-YAC:${{ secrets.DOYLIB_BASE_TOKEN }}@github.com/DO-YAC/doylib.base.git
+          git push public main --force
