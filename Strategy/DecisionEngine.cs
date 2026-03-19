@@ -43,6 +43,7 @@ internal class DecisionEngine
             }
             catch
             {
+                mLogger.LogWarning("Module '{ModuleName}' failed to evaluate", mModules[i].Name);
                 results[i] = TradeAction.NONE;
             }
         });
