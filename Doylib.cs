@@ -1,10 +1,10 @@
 using doylib.Logging;
-using doylib.Models;
 using doylib.Engine;
 using doylib.Engine.Modules;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
+using DoyVestment.Framework.Models;
 
 namespace doylib
 {
@@ -39,15 +39,15 @@ namespace doylib
                 mLogger.LogDebug("jLine: {JLine}", jLine);    
             }
 
-            var line = jLine.ToObject<Line>();
+            var candle = jLine.ToObject<Candle>();
 
-            if (line is null)
+            if (candle is null)
             {
                 mLogger.LogDebug("line is null after conversion");
                 throw new InvalidOperationException("Unable to convert input payload into a Line instance.");
             }
             
-            var decision = mDecisionEngine.Evaluate(line);
+            var decision = mDecisionEngine.Evaluate(candle);
                 
             if (mLogger.IsEnabled(LogLevel.Debug))
             {
