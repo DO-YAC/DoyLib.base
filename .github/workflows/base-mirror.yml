@@ -13,16 +13,9 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          
-      - name: Debug token
-        run: |
-          if [ -z "${{ secrets.DOYLIB_BASE_TOKEN }}" ]; then
-            echo "Token is EMPTY"
-          else
-            echo "Token is set"
-          fi          
 
       - name: Push to public repo
         run: |
+          git config --unset-all http.https://github.com/.extraheader
           git remote add public https://DO-YAC:${{ secrets.DOYLIB_BASE_TOKEN }}@github.com/DO-YAC/doylib.base.git
           git push public main --force
