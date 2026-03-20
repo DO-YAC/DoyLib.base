@@ -1,6 +1,6 @@
 using System;
-using doylib.Enums;
-using doylib.Models;
+using DoyVestment.Framework.Models;
+using DoyVestment.Framework.Models.Enums;
 
 namespace doylib.Engine.Modules;
 
@@ -8,7 +8,7 @@ internal class ExampleModule : IStrategyModule
 {
     public string Name => "ExampleModule";
 
-    public TradeAction Evaluate(Line line)
+    public TradeAction Evaluate(Candle candle)
     {
         var decision = Random.Shared.Next(0, 3);
         return (TradeAction)decision;
