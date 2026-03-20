@@ -1,10 +1,10 @@
 using doylib.Logging;
-using doylib.Models;
 using doylib.Engine;
 using doylib.Engine.Modules;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
+using DoyVestment.Framework.Models;
 
 namespace doylib
 {
@@ -39,7 +39,7 @@ namespace doylib
                 mLogger.LogDebug("jLine: {JLine}", jLine);    
             }
 
-            var line = jLine.ToObject<Line>();
+            var line = jLine.ToObject<Candle>();
 
             if (line is null)
             {
