@@ -8,7 +8,7 @@ internal class ExampleModule : IStrategyModule
 {
     public string Name => "ExampleModule";
 
-    public TradeAction Evaluate(Candle candle)
+    public TradeAction Evaluate(Candle candle, ICandleWindowService candleWindow)
     {
         var decision = Random.Shared.Next(0, 3);
         return (TradeAction)decision;

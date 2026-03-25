@@ -1,10 +1,10 @@
-using doylib.Logging;
+using System;
 using doylib.Engine;
 using doylib.Engine.Modules;
+using doylib.Logging;
+using DoyVestment.Framework.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using System;
-using DoyVestment.Framework.Models;
 
 namespace doylib
 {
@@ -12,12 +12,15 @@ namespace doylib
     {
         private readonly ILogger mLogger;
         private readonly DecisionEngine mDecisionEngine;
+        private readonly CandleWindowService mCandleWindowService;
 
         public Doylib(DoylibSettings settings)
         {
             mLogger = LoggerProvider.CreateLogger<Doylib>();
             mDecisionEngine = new DecisionEngine(settings);
             mDecisionEngine.Register(new ExampleModule());
+            mCandleWindowService = new CandleWindowService(LoggerProvider.CreateLogger<CandleWindowService>());
+            mCandleWindowService.Initialize(settings.MaxCandleWindowSize);
         }
 
         public int Execute(JObject jLine)
@@ -47,7 +50,7 @@ namespace doylib
                 throw new InvalidOperationException("Unable to convert input payload into a Line instance.");
             }
             
-            var decision = mDecisionEngine.Evaluate(line);
+            var decision = mDecisionEngine.Evaluate(line, mCandleWindowService);
                 
             if (mLogger.IsEnabled(LogLevel.Debug))
             {
@@ -66,6 +69,13 @@ namespace doylib
         {
             return mDecisionEngine.GetActiveModules();
         }
+
+        public void AddCandle(Candle candle)
+        {
+            mCandleWindowService.AddCandle(candle);
+        }
+
+        public int CandleCount => mCandleWindowService.Count;
     }
 
 }
