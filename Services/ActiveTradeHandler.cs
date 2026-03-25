@@ -39,7 +39,7 @@ internal class ActiveTradeHandler : IActiveTradeHandler
 
         var exMessage = string.Format("Could not add Trade with TradeId '{0}' to registry." +
             " It is advised to closely watch it or close this trade manually.",
-            trade.DoyTradeId.ToString());
+            trade.DoyTradeId);
 
         var ex = new ActiveTradeException(exMessage, HttpStatusCode.InternalServerError, ExceptionSeverityLevel.Inoperable);
         mDoyExceptionHandler.HandleException(ex, DoyExceptionHandler.DefaultLogger);
@@ -54,7 +54,7 @@ internal class ActiveTradeHandler : IActiveTradeHandler
 
         var exMessage = string.Format("Failed to remove Trade with tradeId '{0}' from the registry." +
             " Your strategy now might not work as expected. It is advised to check the backup and restart the application.",
-            doyTradeId.ToString());
+            doyTradeId);
 
         var ex = new ActiveTradeException(exMessage, HttpStatusCode.InternalServerError, ExceptionSeverityLevel.Inoperable);
         mDoyExceptionHandler.HandleException(ex, DoyExceptionHandler.DefaultLogger);
