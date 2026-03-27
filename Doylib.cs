@@ -17,6 +17,8 @@ public class Doylib
     private readonly DecisionEngine mDecisionEngine;
     private readonly IActiveTradeHandler mActiveTradeHandler;
 
+    private event EventHandler<Guid> mTradeClosedSuccessfully;
+
     // TODO: Add some kind of Containerization / DI to Doylib to avoid redundant class initializations.
     public Doylib(DoylibSettings settings)
     {
@@ -26,6 +28,8 @@ public class Doylib
         mActiveTradeHandler = new ActiveTradeHandler(
             new DoyExceptionHandler(
                 new ProcessTerminationService()));
+
+        mTradeClosedSuccessfully += mActiveTradeHandler.OnTradeClosedSuccessfully;
     }
 
     public DoyLibTradeResponse Execute(Candle candle)
@@ -49,7 +53,6 @@ public class Doylib
         if (mActiveTradeHandler.ExampleHandle(decision, out var doyTradeId))
         {
             response = new DoyLibTradeResponse(doyTradeId!.Value, TradeAction.CLOSE, null, null);
-            mActiveTradeHandler.RemoveActiveTrade(response.DoyTradeId);
 
             return response;
 
@@ -74,5 +77,10 @@ public class Doylib
     public string[] GetActiveModules()
     {
         return mDecisionEngine.GetActiveModules();
+    }
+
+    public void FireTradeClosedSuccessfully(Guid doyTradeId)
+    {
+        mTradeClosedSuccessfully.Invoke(this, doyTradeId);
     }
 }

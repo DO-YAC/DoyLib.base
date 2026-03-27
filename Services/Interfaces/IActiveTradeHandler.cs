@@ -10,8 +10,6 @@ internal interface IActiveTradeHandler
 {
     IReadOnlyDictionary<Guid, ActiveTrade> ActiveTrades { get; }
 
-    void RemoveActiveTrade(Guid doyTradeId);
-
     void AddActiveTrade(DoyLibTradeResponse trade);
 
     void RemoveTpOrSlHit(Candle candle);
@@ -23,4 +21,6 @@ internal interface IActiveTradeHandler
     /// <param name="action"></param>
     /// <param name="doyTradeId"></param>
     bool ExampleHandle(TradeAction action, out Guid? doyTradeId);
+
+    public void OnTradeClosedSuccessfully(object? sender, Guid e);
 }

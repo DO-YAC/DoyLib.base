@@ -45,7 +45,7 @@ internal class ActiveTradeHandler : IActiveTradeHandler
         mDoyExceptionHandler.HandleException(ex, DoyExceptionHandler.DefaultLogger);
     }
 
-    public void RemoveActiveTrade(Guid doyTradeId)
+    private void RemoveActiveTrade(Guid doyTradeId)
     {
         if (mActiveTrades.TryRemove(doyTradeId, out _))
         {
@@ -111,5 +111,10 @@ internal class ActiveTradeHandler : IActiveTradeHandler
 
             return tpHit || slHit;
         }
+    }
+
+    public void OnTradeClosedSuccessfully(object? sender, Guid e)
+    {
+        RemoveActiveTrade(e);
     }
 }
