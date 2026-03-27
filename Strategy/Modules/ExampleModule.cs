@@ -4,11 +4,11 @@ using DoyVestment.Framework.Models.Enums;
 
 namespace doylib.Engine.Modules;
 
-internal class ExampleModule : IStrategyModule
+internal class ExampleModule(ICandleWindowService candleWindowService) : IStrategyModule
 {
     public string Name => "ExampleModule";
 
-    public TradeAction Evaluate(Candle candle, ICandleWindowService candleWindow)
+    public TradeAction Evaluate(Candle candle)
     {
         var decision = Random.Shared.Next(0, 3);
         return (TradeAction)decision;

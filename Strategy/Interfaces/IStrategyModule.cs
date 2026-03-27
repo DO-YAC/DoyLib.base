@@ -6,6 +6,6 @@ namespace doylib.Engine;
 public interface IStrategyModule
 {
     string Name { get; }
-    TradeAction Evaluate(Candle candle, ICandleWindowService candleWindow);
+    TradeAction Evaluate(Candle candle);
     void Warmup();
 }

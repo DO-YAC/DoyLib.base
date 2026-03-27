@@ -17,10 +17,10 @@ namespace doylib
         public Doylib(DoylibSettings settings)
         {
             mLogger = LoggerProvider.CreateLogger<Doylib>();
-            mDecisionEngine = new DecisionEngine(settings);
-            mDecisionEngine.Register(new ExampleModule());
             mCandleWindowService = new CandleWindowService(LoggerProvider.CreateLogger<CandleWindowService>());
             mCandleWindowService.Initialize(settings.MaxCandleWindowSize);
+            mDecisionEngine = new DecisionEngine(settings);
+            mDecisionEngine.Register(new ExampleModule(mCandleWindowService));
         }
 
         public int Execute(JObject jLine)
@@ -50,7 +50,7 @@ namespace doylib
                 throw new InvalidOperationException("Unable to convert input payload into a Line instance.");
             }
             
-            var decision = mDecisionEngine.Evaluate(line, mCandleWindowService);
+            var decision = mDecisionEngine.Evaluate(line);
                 
             if (mLogger.IsEnabled(LogLevel.Debug))
             {

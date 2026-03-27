@@ -26,7 +26,7 @@ internal class DecisionEngine
         mModules.Add(module);
     }
 
-    internal TradeAction Evaluate(Candle candle, ICandleWindowService candleWindow)
+    internal TradeAction Evaluate(Candle candle)
     {
         if (mModules.Count == 0)
         {
@@ -39,7 +39,7 @@ internal class DecisionEngine
         {
             try
             {
-                results[i] = mModules[i].Evaluate(candle, candleWindow);
+                results[i] = mModules[i].Evaluate(candle);
             }
             catch
             {
