@@ -5,10 +5,29 @@ using doylib.Logging;
 using DoyVestment.Framework.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using doylib.Engine.Modules;
+using doylib.Logging;
+using doylib.Services;
+using doylib.Services.Interfaces;
+using doylib.Strategy;
+using DoyVestment.Framework.Models;
+using DoyVestment.Framework.Models.Enums;
+using DoyVestment.Framework.Services;
+using Microsoft.Extensions.Logging;
+using System;
 
-namespace doylib
+namespace doylib;
+
+public class Doylib
 {
-    public class Doylib
+    private readonly ILogger mLogger;
+    private readonly DecisionEngine mDecisionEngine;
+    private readonly IActiveTradeHandler mActiveTradeHandler;
+
+    private event EventHandler<Guid> mTradeClosedSuccessfully;
+
+    // TODO: Add some kind of Containerization / DI to Doylib to avoid redundant class initializations.
+    public Doylib(DoylibSettings settings)
     {
         private readonly ILogger mLogger;
         private readonly DecisionEngine mDecisionEngine;
@@ -22,52 +41,40 @@ namespace doylib
             mDecisionEngine = new DecisionEngine(settings);
             mDecisionEngine.Register(new ExampleModule(mCandleWindowService));
         }
+        mLogger = LoggerProvider.CreateLogger<Doylib>();
+        mDecisionEngine = new DecisionEngine(settings);
+        mDecisionEngine.Register(new ExampleModule());
+        mActiveTradeHandler = new ActiveTradeHandler(
+            new DoyExceptionHandler(
+                new ProcessTerminationService()));
 
-        public int Execute(JObject jLine)
+        mTradeClosedSuccessfully += mActiveTradeHandler.OnTradeClosedSuccessfully;
+    }
+
+    public DoyLibTradeResponse Execute(Candle candle)
+    {
+        if (mLogger.IsEnabled(LogLevel.Debug))
         {
-            if (mLogger.IsEnabled(LogLevel.Debug))
-            {
-                mLogger.LogDebug("Execute called");    
-            }
-            
-
-            if (jLine is null)
-            {
-                mLogger.LogDebug("jLine is null");
-                throw new ArgumentNullException(nameof(jLine));
-            }
-
-            if (mLogger.IsEnabled(LogLevel.Debug))
-            {
-                mLogger.LogDebug("jLine: {JLine}", jLine);    
-            }
-
-            var line = jLine.ToObject<Candle>();
-
-            if (line is null)
-            {
-                mLogger.LogDebug("line is null after conversion");
-                throw new InvalidOperationException("Unable to convert input payload into a Line instance.");
-            }
-            
-            var decision = mDecisionEngine.Evaluate(line);
-                
-            if (mLogger.IsEnabled(LogLevel.Debug))
-            {
-                mLogger.LogDebug("Got decision: {Decision}", decision);
-            }
-            
-            return (int)decision;
+            mLogger.LogDebug("Execute called");
         }
-        
-        public void Warmup()
+
+        mActiveTradeHandler.RemoveTpOrSlHit(candle);
+
+        var decision = mDecisionEngine.Evaluate(candle);
+
+        if (mLogger.IsEnabled(LogLevel.Debug))
         {
-            mDecisionEngine.Warmup();
+            mLogger.LogDebug("Got decision: {Decision}", decision);
         }
-        
-        public string[] GetActiveModules()
+
+        DoyLibTradeResponse response;
+
+        if (mActiveTradeHandler.ExampleHandle(decision, out var doyTradeId))
         {
-            return mDecisionEngine.GetActiveModules();
+            response = new DoyLibTradeResponse(doyTradeId!.Value, TradeAction.CLOSE, null, null);
+
+            return response;
+
         }
 
         public void AddCandle(Candle candle)
@@ -76,6 +83,29 @@ namespace doylib
         }
 
         public int CandleCount => mCandleWindowService.Count;
+        response = new DoyLibTradeResponse(
+            Guid.NewGuid(),
+            decision,
+            null,
+            null);
+
+        mActiveTradeHandler.AddActiveTrade(response);
+
+        return response;
     }
 
+    public void Warmup()
+    {
+        mDecisionEngine.Warmup();
+    }
+
+    public string[] GetActiveModules()
+    {
+        return mDecisionEngine.GetActiveModules();
+    }
+
+    public void FireTradeClosedSuccessfully(Guid doyTradeId)
+    {
+        mTradeClosedSuccessfully.Invoke(this, doyTradeId);
+    }
 }

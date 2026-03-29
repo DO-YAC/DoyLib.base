@@ -1,17 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using doylib.Engine;
 using doylib.Logging;
 using DoyVestment.Framework.Models;
 using DoyVestment.Framework.Models.Enums;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace doylib.Engine;
+namespace doylib.Strategy;
 
 internal class DecisionEngine
 {
-    private readonly List<IStrategyModule> mModules = new();
+    private readonly List<IStrategyModule> mModules = [];
     private readonly ILogger mLogger;
     private readonly double mQuorum;
 
