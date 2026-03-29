@@ -1,10 +1,4 @@
 using System;
-using doylib.Engine;
-using doylib.Engine.Modules;
-using doylib.Logging;
-using DoyVestment.Framework.Models;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using doylib.Engine.Modules;
 using doylib.Logging;
 using doylib.Services;
@@ -14,13 +8,13 @@ using DoyVestment.Framework.Models;
 using DoyVestment.Framework.Models.Enums;
 using DoyVestment.Framework.Services;
 using Microsoft.Extensions.Logging;
-using System;
 
 namespace doylib;
 
 public class Doylib
 {
     private readonly ILogger mLogger;
+    private readonly ICandleWindowService mCandleWindowService;
     private readonly DecisionEngine mDecisionEngine;
     private readonly IActiveTradeHandler mActiveTradeHandler;
 
@@ -29,21 +23,11 @@ public class Doylib
     // TODO: Add some kind of Containerization / DI to Doylib to avoid redundant class initializations.
     public Doylib(DoylibSettings settings)
     {
-        private readonly ILogger mLogger;
-        private readonly DecisionEngine mDecisionEngine;
-        private readonly CandleWindowService mCandleWindowService;
-
-        public Doylib(DoylibSettings settings)
-        {
-            mLogger = LoggerProvider.CreateLogger<Doylib>();
-            mCandleWindowService = new CandleWindowService(LoggerProvider.CreateLogger<CandleWindowService>());
-            mCandleWindowService.Initialize(settings.MaxCandleWindowSize);
-            mDecisionEngine = new DecisionEngine(settings);
-            mDecisionEngine.Register(new ExampleModule(mCandleWindowService));
-        }
         mLogger = LoggerProvider.CreateLogger<Doylib>();
+        mCandleWindowService = new CandleWindowService(LoggerProvider.CreateLogger<CandleWindowService>());
+        mCandleWindowService.Initialize(settings.MaxCandleWindowSize);
         mDecisionEngine = new DecisionEngine(settings);
-        mDecisionEngine.Register(new ExampleModule());
+        mDecisionEngine.Register(new ExampleModule(mCandleWindowService));
         mActiveTradeHandler = new ActiveTradeHandler(
             new DoyExceptionHandler(
                 new ProcessTerminationService()));
@@ -76,13 +60,7 @@ public class Doylib
             return response;
 
         }
-
-        public void AddCandle(Candle candle)
-        {
-            mCandleWindowService.AddCandle(candle);
-        }
-
-        public int CandleCount => mCandleWindowService.Count;
+        
         response = new DoyLibTradeResponse(
             Guid.NewGuid(),
             decision,
@@ -103,6 +81,13 @@ public class Doylib
     {
         return mDecisionEngine.GetActiveModules();
     }
+    
+    public void AddCandle(Candle candle)
+    {
+        mCandleWindowService.AddCandle(candle);
+    }
+    
+    public int CandleCount => mCandleWindowService.Count;
 
     public void FireTradeClosedSuccessfully(Guid doyTradeId)
     {
