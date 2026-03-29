@@ -2,12 +2,13 @@ using System.Net;
 using System.Threading;
 using DoyVestment.Framework.Models;
 using DoyVestment.Framework.Models.Enums;
+using DoyVestment.Framework.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace doylib;
-// IDoyExceptionHandler exceptionHandler gets added as soon as DOY-144 is merged
 public class CandleWindowService(
-    ILogger<CandleWindowService> logger) : ICandleWindowService
+    ILogger<CandleWindowService> logger,
+    IDoyExceptionHandler exceptionHandler) : ICandleWindowService
 {
     private readonly Lock mLock = new();
     private Candle[] mRawWindow = null!;
@@ -26,7 +27,7 @@ public class CandleWindowService(
                 HttpStatusCode.BadRequest,
                 ExceptionSeverityLevel.Inoperable);
 
-            // exceptionHandler.HandleException(typedEx, logger);
+            exceptionHandler.HandleException(typedEx, logger);
         }
 
         mMaxSize = maxSize;
@@ -38,13 +39,26 @@ public class CandleWindowService(
 
     public void UpdateLatestCandle(Candle candle)
     {
+        if (mWindowCount == 0)
+        {
+            return;
+        }
+
         if (mWindowCount < mMaxSize)
         {
             mRawWindow[mWindowCount - 1] = candle.Clone();
         }
         else
         {
-            mRawWindow[mRawWindowStart - 1] = candle.Clone();
+            mRawWindow[(mRawWindowStart - 1 + mMaxSize) % mMaxSize] = candle.Clone();
+        }
+    }
+
+    public void AddCandle(Candle[] candles)
+    {
+        foreach (var candle in candles)
+        {
+            AddCandle(candle);
         }
     }
 
@@ -57,7 +71,7 @@ public class CandleWindowService(
                 HttpStatusCode.BadRequest,
                 ExceptionSeverityLevel.Inoperable);
 
-            // exceptionHandler.HandleException(typedEx, logger);
+            exceptionHandler.HandleException(typedEx, logger);
 
             return;
         }

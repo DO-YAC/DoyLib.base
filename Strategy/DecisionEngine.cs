@@ -1,12 +1,11 @@
-using doylib.Engine;
-using doylib.Logging;
-using DoyVestment.Framework.Models;
-using DoyVestment.Framework.Models.Enums;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using doylib.Engine;
+using doylib.Logging;
+using DoyVestment.Framework.Models.Enums;
+using Microsoft.Extensions.Logging;
 
 namespace doylib.Strategy;
 
@@ -27,7 +26,7 @@ internal class DecisionEngine
         mModules.Add(module);
     }
 
-    internal TradeAction Evaluate(Candle candle)
+    internal TradeAction Evaluate()
     {
         if (mModules.Count == 0)
         {
@@ -40,7 +39,7 @@ internal class DecisionEngine
         {
             try
             {
-                results[i] = mModules[i].Evaluate(candle);
+                results[i] = mModules[i].Evaluate();
             }
             catch
             {

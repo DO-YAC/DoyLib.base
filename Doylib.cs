@@ -7,6 +7,7 @@ using doylib.Strategy;
 using DoyVestment.Framework.Models;
 using DoyVestment.Framework.Models.Enums;
 using DoyVestment.Framework.Services;
+using DoyVestment.Framework.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace doylib;
@@ -14,6 +15,7 @@ namespace doylib;
 public class Doylib
 {
     private readonly ILogger mLogger;
+    private readonly IDoyExceptionHandler mDoyExceptionHandler;
     private readonly ICandleWindowService mCandleWindowService;
     private readonly DecisionEngine mDecisionEngine;
     private readonly IActiveTradeHandler mActiveTradeHandler;
@@ -24,13 +26,13 @@ public class Doylib
     public Doylib(DoylibSettings settings)
     {
         mLogger = LoggerProvider.CreateLogger<Doylib>();
-        mCandleWindowService = new CandleWindowService(LoggerProvider.CreateLogger<CandleWindowService>());
+        mDoyExceptionHandler = new DoyExceptionHandler(new ProcessTerminationService());
+        mCandleWindowService = new CandleWindowService(LoggerProvider.CreateLogger<CandleWindowService>(), mDoyExceptionHandler);
         mCandleWindowService.Initialize(settings.MaxCandleWindowSize);
+        mActiveTradeHandler = new ActiveTradeHandler(mDoyExceptionHandler);
         mDecisionEngine = new DecisionEngine(settings);
+        
         mDecisionEngine.Register(new ExampleModule(mCandleWindowService));
-        mActiveTradeHandler = new ActiveTradeHandler(
-            new DoyExceptionHandler(
-                new ProcessTerminationService()));
 
         mTradeClosedSuccessfully += mActiveTradeHandler.OnTradeClosedSuccessfully;
     }
@@ -42,9 +44,11 @@ public class Doylib
             mLogger.LogDebug("Execute called");
         }
 
+        AddCandle(candle);
+
         mActiveTradeHandler.RemoveTpOrSlHit(candle);
 
-        var decision = mDecisionEngine.Evaluate(candle);
+        var decision = mDecisionEngine.Evaluate();
 
         if (mLogger.IsEnabled(LogLevel.Debug))
         {
@@ -83,6 +87,11 @@ public class Doylib
     }
     
     public void AddCandle(Candle candle)
+    {
+        mCandleWindowService.AddCandle(candle);
+    }
+    
+    public void AddCandle(Candle[] candle)
     {
         mCandleWindowService.AddCandle(candle);
     }
