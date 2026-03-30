@@ -42,6 +42,8 @@ internal class CandleWindowService(
                 ExceptionSeverityLevel.Inoperable);
 
             exceptionHandler.HandleException(typedEx, logger);
+
+            return;
         }
 
         mMaxSize = maxSize;
@@ -70,15 +72,26 @@ internal class CandleWindowService(
         }
     }
 
-    public void AddCandle(Candle[] candles)
+    public void AddCandle(Candle[]? candles)
     {
+        if (candles == null)
+        {
+            var typedEx = new DoyVestmentException(
+                "Argument cannot be null",
+                HttpStatusCode.BadRequest,
+                ExceptionSeverityLevel.Inoperable);
+
+            exceptionHandler.HandleException(typedEx, logger);
+
+            return;
+        }
         foreach (var candle in candles)
         {
             AddCandle(candle);
         }
     }
 
-    public void AddCandle(Candle candle)
+    public void AddCandle(Candle? candle)
     {
         if (candle == null)
         {
