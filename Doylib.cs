@@ -95,8 +95,6 @@ public class Doylib
     {
         mCandleWindowService.AddCandle(candle);
     }
-    
-    public int CandleCount => mCandleWindowService.Count;
 
     public void FireTradeClosedSuccessfully(Guid doyTradeId)
     {

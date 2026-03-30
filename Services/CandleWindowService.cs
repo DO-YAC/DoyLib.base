@@ -17,9 +17,7 @@ internal class CandleWindowService(
     private int mWindowCount;
     private int mRawWindowStart;
 
-    public int Count => mWindowCount;
-
-    public DateTime? LatestTimestamp
+    private DateTime? LatestTimestamp
     {
         get
         {
@@ -52,9 +50,7 @@ internal class CandleWindowService(
         mRawWindowStart = 0;
         logger.LogInformation("CandleWindowService initialized with maxSize: {MaxSize}", maxSize);
     }
-
-    // TODO: Make sure Candle Timestamp gets sent the right way
-    // (period open time e.g. all ticks in the 10:05–10:10 bar share timestamp 10:05:00 when M5)
+    
     private void UpdateLatestCandle(Candle candle)
     {
         if (mWindowCount == 0)
