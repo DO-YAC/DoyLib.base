@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Threading;
 using DoyVestment.Framework.Models;
@@ -5,8 +6,8 @@ using DoyVestment.Framework.Models.Enums;
 using DoyVestment.Framework.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace doylib;
-public class CandleWindowService(
+namespace doylib.Services;
+internal class CandleWindowService(
     ILogger<CandleWindowService> logger,
     IDoyExceptionHandler exceptionHandler) : ICandleWindowService
 {
@@ -17,6 +18,19 @@ public class CandleWindowService(
     private int mRawWindowStart;
 
     public int Count => mWindowCount;
+
+    public DateTime? LatestTimestamp
+    {
+        get
+        {
+            if (mWindowCount == 0) return null;
+
+            if (mWindowCount < mMaxSize)
+                return mRawWindow[mWindowCount - 1].Timestamp;
+
+            return mRawWindow[(mRawWindowStart - 1 + mMaxSize) % mMaxSize].Timestamp;
+        }
+    }
 
     public void Initialize(int maxSize)
     {
@@ -34,10 +48,12 @@ public class CandleWindowService(
         mRawWindow = new Candle[maxSize];
         mWindowCount = 0;
         mRawWindowStart = 0;
-        logger.LogInformation("TACandleWindowService initialized with maxSize: {MaxSize}", maxSize);
+        logger.LogInformation("CandleWindowService initialized with maxSize: {MaxSize}", maxSize);
     }
 
-    public void UpdateLatestCandle(Candle candle)
+    // TODO: Make sure Candle Timestamp gets sent the right way
+    // (period open time e.g. all ticks in the 10:05–10:10 bar share timestamp 10:05:00 when M5)
+    private void UpdateLatestCandle(Candle candle)
     {
         if (mWindowCount == 0)
         {
@@ -78,6 +94,12 @@ public class CandleWindowService(
 
         lock (mLock)
         {
+            if (LatestTimestamp == candle.Timestamp)
+            {
+                UpdateLatestCandle(candle);
+                return;
+            }
+
             if (mWindowCount < mMaxSize)
             {
                 mRawWindow[mWindowCount] = candle.Clone();
