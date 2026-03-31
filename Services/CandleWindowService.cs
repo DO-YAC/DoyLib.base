@@ -81,6 +81,7 @@ internal class CandleWindowService(
 
             return;
         }
+        
         foreach (var candle in candles)
         {
             AddCandle(candle);
