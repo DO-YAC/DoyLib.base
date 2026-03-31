@@ -27,7 +27,7 @@ public interface IStrategyModule
 }
 ```
 
-- `Evaluate` — receives a candle and returns `BUY`, `SELL`, or `NONE`
+- `Evaluate` — Returns `BUY`, `SELL`, or `NONE`
 - `Warmup` — called once before the first evaluation (used primally for loading AI models)
 
 New modules can be registered without restructuring the system.
