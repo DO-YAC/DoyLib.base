@@ -22,7 +22,7 @@ Implement `IStrategyModule` to create a new module:
 public interface IStrategyModule
 {
     string Name { get; }
-    TradeAction Evaluate(Candle candle);
+    TradeAction Evaluate();
     void Warmup();
 }
 ```
