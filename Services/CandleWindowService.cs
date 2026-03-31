@@ -12,21 +12,21 @@ internal class CandleWindowService(
     IDoyExceptionHandler exceptionHandler) : ICandleWindowService
 {
     private readonly Lock mLock = new();
-    private Candle[] mRawWindow = null!;
+    private Candle[] mWindow = null!;
     private int mMaxSize;
-    private int mWindowCount;
-    private int mRawWindowStart;
+    private int mCandleCount;
+    private int mWindowStart;
 
     private DateTime? LatestTimestamp
     {
         get
         {
-            if (mWindowCount == 0) return null;
+            if (mCandleCount == 0) return null;
 
-            if (mWindowCount < mMaxSize)
-                return mRawWindow[mWindowCount - 1].Timestamp;
+            if (mCandleCount < mMaxSize)
+                return mWindow[mCandleCount - 1].Timestamp;
 
-            return mRawWindow[(mRawWindowStart - 1 + mMaxSize) % mMaxSize].Timestamp;
+            return mWindow[(mWindowStart - 1 + mMaxSize) % mMaxSize].Timestamp;
         }
     }
 
@@ -45,26 +45,26 @@ internal class CandleWindowService(
         }
 
         mMaxSize = maxSize;
-        mRawWindow = new Candle[maxSize];
-        mWindowCount = 0;
-        mRawWindowStart = 0;
+        mWindow = new Candle[maxSize];
+        mCandleCount = 0;
+        mWindowStart = 0;
         logger.LogInformation("CandleWindowService initialized with maxSize: {MaxSize}", maxSize);
     }
     
     private void UpdateLatestCandle(Candle candle)
     {
-        if (mWindowCount == 0)
+        if (mCandleCount == 0)
         {
             return;
         }
 
-        if (mWindowCount < mMaxSize)
+        if (mCandleCount < mMaxSize)
         {
-            mRawWindow[mWindowCount - 1] = candle.Clone();
+            mWindow[mCandleCount - 1] = candle.Clone();
         }
         else
         {
-            mRawWindow[(mRawWindowStart - 1 + mMaxSize) % mMaxSize] = candle.Clone();
+            mWindow[(mWindowStart - 1 + mMaxSize) % mMaxSize] = candle.Clone();
         }
     }
 
@@ -110,15 +110,15 @@ internal class CandleWindowService(
                 return;
             }
 
-            if (mWindowCount < mMaxSize)
+            if (mCandleCount < mMaxSize)
             {
-                mRawWindow[mWindowCount] = candle.Clone();
-                mWindowCount++;
+                mWindow[mCandleCount] = candle.Clone();
+                mCandleCount++;
             }
             else
             {
-                mRawWindow[mRawWindowStart] = candle.Clone();
-                mRawWindowStart = (mRawWindowStart + 1) % mMaxSize;
+                mWindow[mWindowStart] = candle.Clone();
+                mWindowStart = (mWindowStart + 1) % mMaxSize;
             }
 
             if (logger.IsEnabled(LogLevel.Trace))
