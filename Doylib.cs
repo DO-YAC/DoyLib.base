@@ -1,9 +1,9 @@
 using System;
-using doylib.Engine.Modules;
 using doylib.Logging;
 using doylib.Services;
 using doylib.Services.Interfaces;
 using doylib.Strategy;
+using doylib.Strategy.Modules;
 using DoyVestment.Framework.Models;
 using DoyVestment.Framework.Models.Enums;
 using DoyVestment.Framework.Services;
@@ -23,7 +23,7 @@ public class Doylib
     private event EventHandler<Guid> mTradeClosedSuccessfully;
 
     // TODO: Add some kind of Containerization / DI to Doylib to avoid redundant class initializations.
-    public Doylib(DoylibSettings settings)
+    public Doylib(DoyLibSettings settings)
     {
         mLogger = LoggerProvider.CreateLogger<Doylib>();
         mDoyExceptionHandler = new DoyExceptionHandler(new ProcessTerminationService());

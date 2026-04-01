@@ -1,6 +1,6 @@
 using DoyVestment.Framework.Models.Enums;
 
-namespace doylib.Engine;
+namespace doylib.Strategy.Interfaces;
 
 public interface IStrategyModule
 {

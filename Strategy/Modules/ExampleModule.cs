@@ -1,7 +1,9 @@
 using System;
+using doylib.Services.Interfaces;
+using doylib.Strategy.Interfaces;
 using DoyVestment.Framework.Models.Enums;
 
-namespace doylib.Engine.Modules;
+namespace doylib.Strategy.Modules;
 
 internal class ExampleModule(ICandleWindowService candleWindowService) : IStrategyModule
 {

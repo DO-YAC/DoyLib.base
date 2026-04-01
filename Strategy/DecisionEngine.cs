@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using doylib.Engine;
 using doylib.Logging;
+using doylib.Strategy.Interfaces;
+using DoyVestment.Framework.Models;
 using DoyVestment.Framework.Models.Enums;
 using Microsoft.Extensions.Logging;
 
@@ -15,7 +16,7 @@ internal class DecisionEngine
     private readonly ILogger mLogger;
     private readonly double mQuorum;
 
-    internal DecisionEngine(DoylibSettings settings)
+    internal DecisionEngine(DoyLibSettings settings)
     {
         mLogger = LoggerProvider.CreateLogger<DecisionEngine>();
         mQuorum = settings.Quorum;
