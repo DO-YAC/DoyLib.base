@@ -44,7 +44,7 @@ public class Doylib
             mLogger.LogDebug("Execute called");
         }
 
-        AddCandle(candle);
+        mCandleWindowService.AddCandle(candle);
 
         mActiveTradeHandler.RemoveTpOrSlHit(candle);
 
@@ -84,11 +84,6 @@ public class Doylib
     public string[] GetActiveModules()
     {
         return mDecisionEngine.GetActiveModules();
-    }
-    
-    public void AddCandle(Candle candle)
-    {
-        mCandleWindowService.AddCandle(candle);
     }
     
     public void AddCandle(Candle[] candle)
