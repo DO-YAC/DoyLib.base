@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace doylib;
 
-public class Doylib
+public class Doylib : IStrategy
 {
     private readonly ILogger mLogger;
     private readonly IDoyExceptionHandler mDoyExceptionHandler;
