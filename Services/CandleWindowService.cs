@@ -55,19 +55,19 @@ internal class CandleWindowService(
         {
             if (LatestTimestamp == candle.Timestamp)
             {
-                mWindow[mCandleCount - 1] = candle.Clone();
+                mWindow[mCandleCount - 1] = candle;
                 return;
             }
 
             if (mCandleCount < mMaxSize)
             {
-                mWindow[mCandleCount] = candle.Clone();
+                mWindow[mCandleCount] = candle;
                 mCandleCount++;
             }
             else
             {
                 Array.Copy(mWindow, 1, mWindow, 0, mMaxSize - 1);
-                mWindow[mMaxSize - 1] = candle.Clone();
+                mWindow[mMaxSize - 1] = candle;
             }
 
             if (logger.IsEnabled(LogLevel.Trace))
