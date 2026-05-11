@@ -1,4 +1,6 @@
 using System;
+using doylib.Ai;
+using doylib.Ai.Interfaces;
 using doylib.Logging;
 using doylib.Services;
 using doylib.Services.Interfaces;
@@ -12,13 +14,14 @@ using Microsoft.Extensions.Logging;
 
 namespace doylib;
 
-public class Doylib : IStrategy
+public class Doylib : IStrategy, IDisposable
 {
     private readonly ILogger mLogger;
     private readonly IDoyExceptionHandler mDoyExceptionHandler;
     private readonly ICandleWindowService mCandleWindowService;
     private readonly DecisionEngine mDecisionEngine;
     private readonly IActiveTradeHandler mActiveTradeHandler;
+    private readonly IAiInferenceService? mAiInferenceService;
 
     private event EventHandler<Guid> mTradeClosedSuccessfully;
 
@@ -30,9 +33,17 @@ public class Doylib : IStrategy
         mCandleWindowService = new CandleWindowService(LoggerProvider.CreateLogger<CandleWindowService>(), mDoyExceptionHandler);
         mCandleWindowService.Initialize(settings.MaxCandleWindowSize);
         mActiveTradeHandler = new ActiveTradeHandler(mDoyExceptionHandler);
-        mDecisionEngine = new DecisionEngine(settings);
-        
+
+        if (settings.Ai != null && settings.Ai.Enabled == true)
+        {
+            var aiSettings = settings.Ai;
+            mAiInferenceService = new OnnxInferenceService(aiSettings);
+        }
+
+        mDecisionEngine = new DecisionEngine(settings, mAiInferenceService);
+
         mDecisionEngine.Register(new ExampleModule(mCandleWindowService));
+        mDecisionEngine.Register(new ExampleAiModule(mCandleWindowService));
 
         mTradeClosedSuccessfully += mActiveTradeHandler.OnTradeClosedSuccessfully;
     }
@@ -94,5 +105,10 @@ public class Doylib : IStrategy
     public void FireTradeClosedSuccessfully(Guid doyTradeId)
     {
         mTradeClosedSuccessfully.Invoke(this, doyTradeId);
+    }
+    
+    public void Dispose()
+    {
+        mAiInferenceService?.Dispose();
     }
 }

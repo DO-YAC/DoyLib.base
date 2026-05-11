@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using doylib.Ai.Interfaces;
 using doylib.Logging;
 using doylib.Strategy.Interfaces;
 using DoyVestment.Framework.Models;
@@ -15,15 +16,21 @@ internal class DecisionEngine
     private readonly List<IStrategyModule> mModules = [];
     private readonly ILogger mLogger;
     private readonly double mQuorum;
+    private readonly IAiInferenceService? mAi;
 
-    internal DecisionEngine(DoyLibSettings settings)
+    internal DecisionEngine(DoyLibSettings settings, IAiInferenceService? ai = null)
     {
         mLogger = LoggerProvider.CreateLogger<DecisionEngine>();
         mQuorum = settings.Quorum;
+        mAi = ai;
     }
 
     internal void Register(IStrategyModule module)
     {
+        if (module is IAiStrategyModule aiModule && mAi != null)
+        {
+            aiModule.AttachAi(mAi);
+        }
         mModules.Add(module);
     }
 
