@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)' != 'Debug'">
-    <PackageReference Include="DoyVestment.Framework" Version="1.1.5" />
+    <PackageReference Include="DoyVestment.Framework" Version="1.2.0" />
   </ItemGroup>
 
   <ItemGroup>
