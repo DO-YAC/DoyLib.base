@@ -97,9 +97,9 @@ public class Doylib : IStrategy, IDisposable
         return mDecisionEngine.GetActiveModules();
     }
     
-    public void AddCandle(Candle[] candle)
+    public void AddCandle(Candle[] candles)
     {
-        mCandleWindowService.AddCandle(candle);
+        mCandleWindowService.AddCandle(candles);
     }
 
     public void FireTradeClosedSuccessfully(Guid doyTradeId)
