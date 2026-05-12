@@ -110,7 +110,7 @@ internal sealed class OnnxInferenceService : IAiInferenceService
             
             mLogger.LogDebug("Warmup inference completed for '{Name}'", session.Name);
         }
-        catch (Exception ex)
+        catch (OnnxRuntimeException ex)
         {
             mLogger.LogWarning(ex, "Warmup inference failed for '{Name}' (non-fatal)", session.Name);
         }
