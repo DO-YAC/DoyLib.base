@@ -90,7 +90,13 @@ internal class ActiveTradeHandler : IActiveTradeHandler
             return false;
         }
 
-        var tradeToClose = ActiveTrades.Where(kvp => kvp.Value.TradeAction != action).Select(kvp => kvp.Key).First(); // TODO: In the rest of DoyVestment the closing of multiple trades needs to be supported.
+        var tradeToClose = ActiveTrades.Where(kvp => kvp.Value.TradeAction != action).Select(kvp => kvp.Key).FirstOrDefault();
+        if (tradeToClose == default)
+        {
+            doyTradeId = null;
+            return false;
+        }
+
         doyTradeId = tradeToClose;
         return true;
     }

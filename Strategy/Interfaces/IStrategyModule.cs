@@ -1,11 +1,10 @@
-using DoyVestment.Framework.Models;
 using DoyVestment.Framework.Models.Enums;
 
-namespace doylib.Engine;
+namespace doylib.Strategy.Interfaces;
 
 public interface IStrategyModule
 {
     string Name { get; }
-    TradeAction Evaluate(Candle candle);
+    TradeAction Evaluate();
     void Warmup();
 }

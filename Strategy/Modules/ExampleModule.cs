@@ -1,14 +1,15 @@
 using System;
-using DoyVestment.Framework.Models;
+using doylib.Services.Interfaces;
+using doylib.Strategy.Interfaces;
 using DoyVestment.Framework.Models.Enums;
 
-namespace doylib.Engine.Modules;
+namespace doylib.Strategy.Modules;
 
-internal class ExampleModule : IStrategyModule
+internal class ExampleModule(ICandleWindowService candleWindowService) : IStrategyModule
 {
     public string Name => "ExampleModule";
 
-    public TradeAction Evaluate(Candle candle)
+    public TradeAction Evaluate()
     {
         var decision = Random.Shared.Next(0, 3);
         return (TradeAction)decision;
