@@ -1,12 +1,13 @@
-using doylib.Engine;
-using doylib.Logging;
-using DoyVestment.Framework.Models;
-using DoyVestment.Framework.Models.Enums;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using doylib.Ai.Interfaces;
+using doylib.Logging;
+using doylib.Strategy.Interfaces;
+using DoyVestment.Framework.Models;
+using DoyVestment.Framework.Models.Enums;
+using Microsoft.Extensions.Logging;
 
 namespace doylib.Strategy;
 
@@ -15,19 +16,25 @@ internal class DecisionEngine
     private readonly List<IStrategyModule> mModules = [];
     private readonly ILogger mLogger;
     private readonly double mQuorum;
+    private readonly IAiInferenceService? mAi;
 
-    internal DecisionEngine(DoylibSettings settings)
+    internal DecisionEngine(DoyLibSettings settings, IAiInferenceService? ai = null)
     {
         mLogger = LoggerProvider.CreateLogger<DecisionEngine>();
         mQuorum = settings.Quorum;
+        mAi = ai;
     }
 
     internal void Register(IStrategyModule module)
     {
+        if (module is IAiStrategyModule aiModule && mAi != null)
+        {
+            aiModule.AttachAi(mAi);
+        }
         mModules.Add(module);
     }
 
-    internal TradeAction Evaluate(Candle candle)
+    internal TradeAction Evaluate()
     {
         if (mModules.Count == 0)
         {
@@ -40,7 +47,7 @@ internal class DecisionEngine
         {
             try
             {
-                results[i] = mModules[i].Evaluate(candle);
+                results[i] = mModules[i].Evaluate();
             }
             catch
             {
