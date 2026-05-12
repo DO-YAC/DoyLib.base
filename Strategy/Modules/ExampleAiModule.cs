@@ -31,8 +31,9 @@ internal class ExampleAiModule(ICandleWindowService candleWindowService) : IAiSt
             input[baseIndex+3] = (float)candle.Close;
         }
 
+        var session = mSession ?? throw new InvalidOperationException("AI session is not attached. Call AttachAi before Evaluate.");
         var shape = new long[] { 1, lookback, features };
-        var logits = mSession.Run(mSession?.Inputs.Keys.First(), input, shape);
+        var logits = session.Run(session.Inputs.Keys.First(), input, shape);
         
         // TODO: Logits -> Signal
         return TradeAction.NONE;
