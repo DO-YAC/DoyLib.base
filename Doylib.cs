@@ -34,7 +34,7 @@ public class Doylib : IStrategy, IDisposable
         mCandleWindowService.Initialize(settings.MaxCandleWindowSize);
         mActiveTradeHandler = new ActiveTradeHandler(mDoyExceptionHandler);
 
-        if (settings.Ai != null && settings.Ai.Enabled == true)
+        if (settings.Ai != null && settings.Ai.Enabled)
         {
             var aiSettings = settings.Ai;
             mAiInferenceService = new OnnxInferenceService(aiSettings);
