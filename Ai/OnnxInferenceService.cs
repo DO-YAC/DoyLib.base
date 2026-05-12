@@ -117,16 +117,21 @@ internal sealed class OnnxInferenceService : IAiInferenceService
     }
 
     private static string ResolvePath(string path)
-        => Path.IsPathRooted(path) ? path : Path.Combine(AppContext.BaseDirectory, path);
+    {
+        return Path.IsPathRooted(path) ? path : Path.Combine(AppContext.BaseDirectory, path);
+    }
 
     private static GraphOptimizationLevel ParseOptimizationLevel(string value)
-        => value.ToUpperInvariant() switch
+    {
+        return value.ToUpperInvariant() switch
         {
             "DISABLE" => GraphOptimizationLevel.ORT_DISABLE_ALL,
             "BASIC" => GraphOptimizationLevel.ORT_ENABLE_BASIC,
             "EXTENDED" => GraphOptimizationLevel.ORT_ENABLE_EXTENDED,
             _ => GraphOptimizationLevel.ORT_ENABLE_ALL
         };
+    }
+        
 
     public void Dispose()
     {
