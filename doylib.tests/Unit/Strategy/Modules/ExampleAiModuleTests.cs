@@ -1,3 +1,5 @@
+using AutoFixture;
+using AutoFixture.AutoMoq;
 using doylib.Ai.Interfaces;
 using doylib.Services.Interfaces;
 using doylib.Strategy.Modules;
@@ -9,12 +11,16 @@ namespace doylib.tests.Unit.Strategy.Modules;
 [TestClass]
 public class ExampleAiModuleTests
 {
+    private IFixture mFixture = null!;
+    private Mock<ICandleWindowService> mCandleWindowServiceMock = null!;
     private ExampleAiModule mSut = null!;
 
     [TestInitialize]
     public void TestInitialize()
     {
-        mSut = new ExampleAiModule(Mock.Of<ICandleWindowService>());
+        mFixture = new Fixture().Customize(new AutoMoqCustomization());
+        mCandleWindowServiceMock = mFixture.Freeze<Mock<ICandleWindowService>>();
+        mSut = new ExampleAiModule(mCandleWindowServiceMock.Object);
     }
 
     [TestMethod]
@@ -39,20 +45,17 @@ public class ExampleAiModuleTests
             window[i] = new Candle(new DateTime(2024, 1, 1).AddMinutes(i),
                 "EURUSD", "M1", 1, 1.1, 0.9, 1.05, 100);
         }
-        var candleSvc = new Mock<ICandleWindowService>();
-        candleSvc.SetupGet(s => s.Window).Returns(new ReadOnlyMemory<Candle>(window));
-
-        var sut = new ExampleAiModule(candleSvc.Object);
+        mCandleWindowServiceMock.SetupGet(s => s.Window).Returns(new ReadOnlyMemory<Candle>(window));
 
         // Act + Assert
-        Assert.Throws<InvalidOperationException>(() => sut.Evaluate());
+        Assert.Throws<InvalidOperationException>(() => mSut.Evaluate());
     }
 
     [TestMethod]
     public void AttachAi_RequestsSessionWithExpectedName()
     {
         // Arrange
-        var aiMock = new Mock<IAiInferenceService>();
+        var aiMock = mFixture.Freeze<Mock<IAiInferenceService>>();
         aiMock.Setup(a => a.GetSession(It.IsAny<string>())).Returns(Mock.Of<IAiSession>());
 
         // Act

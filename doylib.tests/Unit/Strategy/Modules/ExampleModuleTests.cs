@@ -1,3 +1,5 @@
+using AutoFixture;
+using AutoFixture.AutoMoq;
 using doylib.Services.Interfaces;
 using doylib.Strategy.Modules;
 using DoyVestment.Framework.Models.Enums;
@@ -8,12 +10,16 @@ namespace doylib.tests.Unit.Strategy.Modules;
 [TestClass]
 public class ExampleModuleTests
 {
+    private IFixture mFixture = null!;
+    private Mock<ICandleWindowService> mCandleWindowServiceMock = null!;
     private ExampleModule mSut = null!;
 
     [TestInitialize]
     public void TestInitialize()
     {
-        mSut = new ExampleModule(Mock.Of<ICandleWindowService>());
+        mFixture = new Fixture().Customize(new AutoMoqCustomization());
+        mCandleWindowServiceMock = mFixture.Freeze<Mock<ICandleWindowService>>();
+        mSut = new ExampleModule(mCandleWindowServiceMock.Object);
     }
 
     [TestMethod]
