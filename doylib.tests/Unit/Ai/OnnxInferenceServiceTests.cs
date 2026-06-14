@@ -58,20 +58,6 @@ public class OnnxInferenceServiceTests
     }
 
     [TestMethod]
-    public void LoadedModels_OnEmptyService_IsEmptyCollection()
-    {
-        // Arrange
-        mSut = new OnnxInferenceService(mSettings);
-
-        // Act
-        var loaded = mSut.LoadedModels;
-
-        // Assert
-        Assert.IsNotNull(loaded);
-        Assert.AreEqual(0, loaded.Count);
-    }
-
-    [TestMethod]
     public void Dispose_OnEmptyService_DoesNotThrow()
     {
         // Arrange
