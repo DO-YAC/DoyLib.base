@@ -1,0 +1,27 @@
+name: Build and Test DoyLib
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore doylib.sln -p:Configuration=Release
+
+      - name: Build project
+        run: dotnet build doylib.sln --no-restore -c Release
+
+      - name: Run tests
+        run: dotnet test doylib.sln --no-build -c Release --verbosity normal
