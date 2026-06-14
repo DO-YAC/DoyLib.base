@@ -26,13 +26,13 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: doylib
           path: bin/Release/netstandard2.0/doylib.dll
 
       - name: Set up SSH agent
-        uses: webfactory/ssh-agent@v0.9.0
+        uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.HOME_SERVER_SSH_KEY }}
 
