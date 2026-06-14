@@ -23,7 +23,7 @@ jobs:
         run: dotnet restore doylib.csproj -p:Configuration=Release
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build doylib.csproj --configuration Release --no-restore
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
