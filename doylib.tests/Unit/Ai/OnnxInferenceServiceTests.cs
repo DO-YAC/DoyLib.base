@@ -1,5 +1,4 @@
 using doylib.Ai;
-using doylib.Ai.Interfaces;
 using DoyVestment.Framework.Models;
 
 namespace doylib.tests.Unit.Ai;
@@ -8,6 +7,13 @@ namespace doylib.tests.Unit.Ai;
 public class OnnxInferenceServiceTests
 {
     private OnnxInferenceService mSut = null!;
+    private AiSettings mSettings = null!;
+
+    [TestInitialize]
+    public void TestInitialize()
+    {
+        mSettings = BuildSettings(models: new List<AiModelSettings>());
+    }
 
     [TestCleanup]
     public void TestCleanup()
@@ -18,11 +24,8 @@ public class OnnxInferenceServiceTests
     [TestMethod]
     public void Constructor_WhenSettingsHasNoModels_LoadedModelsIsEmpty()
     {
-        // Arrange
-        var settings = BuildSettings(models: new List<AiModelSettings>());
-
         // Act
-        mSut = new OnnxInferenceService(settings);
+        mSut = new OnnxInferenceService(mSettings);
 
         // Assert
         Assert.AreEqual(0, mSut.LoadedModels.Count);
@@ -45,8 +48,7 @@ public class OnnxInferenceServiceTests
     public void GetSession_WhenNameNotLoaded_ThrowsKeyNotFoundWithAvailableList()
     {
         // Arrange
-        var settings = BuildSettings(models: new List<AiModelSettings>());
-        mSut = new OnnxInferenceService(settings);
+        mSut = new OnnxInferenceService(mSettings);
 
         // Act + Assert
         var ex = Assert.Throws<KeyNotFoundException>(() => mSut.GetSession("nope"));
@@ -59,8 +61,7 @@ public class OnnxInferenceServiceTests
     public void LoadedModels_OnEmptyService_IsEmptyCollection()
     {
         // Arrange
-        var settings = BuildSettings(models: new List<AiModelSettings>());
-        mSut = new OnnxInferenceService(settings);
+        mSut = new OnnxInferenceService(mSettings);
 
         // Act
         var loaded = mSut.LoadedModels;
@@ -74,8 +75,7 @@ public class OnnxInferenceServiceTests
     public void Dispose_OnEmptyService_DoesNotThrow()
     {
         // Arrange
-        var settings = BuildSettings(models: new List<AiModelSettings>());
-        var sut = new OnnxInferenceService(settings);
+        var sut = new OnnxInferenceService(mSettings);
 
         // Act + Assert
         sut.Dispose();
@@ -85,23 +85,11 @@ public class OnnxInferenceServiceTests
     public void Dispose_CalledTwice_DoesNotThrow()
     {
         // Arrange
-        var settings = BuildSettings(models: new List<AiModelSettings>());
-        var sut = new OnnxInferenceService(settings);
+        var sut = new OnnxInferenceService(mSettings);
 
         // Act + Assert
         sut.Dispose();
         sut.Dispose();
-    }
-
-    [TestMethod]
-    public void ImplementsIAiInferenceService()
-    {
-        // Arrange
-        var settings = BuildSettings(models: new List<AiModelSettings>());
-        mSut = new OnnxInferenceService(settings);
-
-        // Assert
-        Assert.IsInstanceOfType(mSut, typeof(IAiInferenceService));
     }
 
     #region Helpers

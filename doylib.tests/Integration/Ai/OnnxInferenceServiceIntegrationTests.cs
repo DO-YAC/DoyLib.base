@@ -11,6 +11,12 @@ public class OnnxInferenceServiceIntegrationTests
 
     private OnnxInferenceService mSut = null!;
 
+    [TestInitialize]
+    public void TestInitialize()
+    {
+        EnsureFixturePresent();
+    }
+
     [TestCleanup]
     public void TestCleanup()
     {
@@ -20,8 +26,6 @@ public class OnnxInferenceServiceIntegrationTests
     [TestMethod]
     public void LoadModel_FromValidFile_SessionAvailable()
     {
-        EnsureFixturePresent();
-
         mSut = new OnnxInferenceService(BuildSettings());
 
         CollectionAssert.Contains(mSut.LoadedModels.ToArray(), FixtureModelName);
@@ -31,8 +35,6 @@ public class OnnxInferenceServiceIntegrationTests
     [TestMethod]
     public void GetSession_AfterLoad_NameMatches()
     {
-        EnsureFixturePresent();
-
         mSut = new OnnxInferenceService(BuildSettings());
         var session = mSut.GetSession(FixtureModelName);
 
@@ -42,8 +44,6 @@ public class OnnxInferenceServiceIntegrationTests
     [TestMethod]
     public void Run_IdentityModel_ReturnsInputUnchanged()
     {
-        EnsureFixturePresent();
-
         mSut = new OnnxInferenceService(BuildSettings());
         var session = mSut.GetSession(FixtureModelName);
 
@@ -58,8 +58,6 @@ public class OnnxInferenceServiceIntegrationTests
     [TestMethod]
     public void Run_IdentityModel_DifferentShapeOnSecondCall_StillCorrect()
     {
-        EnsureFixturePresent();
-
         mSut = new OnnxInferenceService(BuildSettings());
         var session = mSut.GetSession(FixtureModelName);
 
@@ -75,8 +73,6 @@ public class OnnxInferenceServiceIntegrationTests
     [TestMethod]
     public void Warmup_OnLoad_DoesNotThrow()
     {
-        EnsureFixturePresent();
-
         mSut = new OnnxInferenceService(BuildSettings(warmupOnLoad: true));
 
         Assert.IsNotNull(mSut.GetSession(FixtureModelName));
@@ -85,8 +81,6 @@ public class OnnxInferenceServiceIntegrationTests
     [TestMethod]
     public void MultipleModels_RegisteredUnderDifferentNames_LoadIndependently()
     {
-        EnsureFixturePresent();
-
         var settings = BuildSettings(models: new List<AiModelSettings>
         {
             new("identity_a", FixtureRelativePath, WarmupOnLoad: false, ProviderOverrides: null),
@@ -102,8 +96,6 @@ public class OnnxInferenceServiceIntegrationTests
     [TestMethod]
     public void Session_InputsAndOutputs_ReflectModelMetadata()
     {
-        EnsureFixturePresent();
-
         mSut = new OnnxInferenceService(BuildSettings());
         var session = mSut.GetSession(FixtureModelName);
 
@@ -114,8 +106,6 @@ public class OnnxInferenceServiceIntegrationTests
     [TestMethod]
     public void Dispose_AfterLoad_ClearsLoadedModels()
     {
-        EnsureFixturePresent();
-
         var sut = new OnnxInferenceService(BuildSettings());
         Assert.AreEqual(1, sut.LoadedModels.Count);
 

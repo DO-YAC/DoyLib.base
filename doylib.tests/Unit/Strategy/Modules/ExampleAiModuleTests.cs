@@ -9,20 +9,24 @@ namespace doylib.tests.Unit.Strategy.Modules;
 [TestClass]
 public class ExampleAiModuleTests
 {
+    private ExampleAiModule mSut = null!;
+
+    [TestInitialize]
+    public void TestInitialize()
+    {
+        mSut = new ExampleAiModule(Mock.Of<ICandleWindowService>());
+    }
+
     [TestMethod]
     public void Name_IsExampleAiModule()
     {
-        var sut = new ExampleAiModule(Mock.Of<ICandleWindowService>());
-
-        Assert.AreEqual("ExampleAiModule", sut.Name);
+        Assert.AreEqual("ExampleAiModule", mSut.Name);
     }
 
     [TestMethod]
     public void Warmup_DoesNotThrow()
     {
-        var sut = new ExampleAiModule(Mock.Of<ICandleWindowService>());
-
-        sut.Warmup();
+        mSut.Warmup();
     }
 
     [TestMethod]
@@ -51,10 +55,8 @@ public class ExampleAiModuleTests
         var aiMock = new Mock<IAiInferenceService>();
         aiMock.Setup(a => a.GetSession(It.IsAny<string>())).Returns(Mock.Of<IAiSession>());
 
-        var sut = new ExampleAiModule(Mock.Of<ICandleWindowService>());
-
         // Act
-        sut.AttachAi(aiMock.Object);
+        mSut.AttachAi(aiMock.Object);
 
         // Assert
         aiMock.Verify(a => a.GetSession("lstm_eurusd_m1"), Times.Once);

@@ -32,7 +32,7 @@ public class CandleWindowServiceTests
 
         // Assert
         mExceptionHandlerMock.Verify(
-            e => e.HandleException(It.IsAny<DoyVestmentException>(), It.IsAny<ILogger>()),
+            exceptionHandler => exceptionHandler.HandleException(It.IsAny<DoyVestmentException>(), It.IsAny<ILogger>()),
             Times.Once);
     }
 

@@ -14,19 +14,21 @@ public class DecisionEngineTests
 {
     private IFixture mFixture = null!;
     private Mock<IAiInferenceService> mAiMock = null!;
+    private DoyLibSettings mSettings = null!;
 
     [TestInitialize]
     public void TestInitialize()
     {
         mFixture = new Fixture().Customize(new AutoMoqCustomization());
         mAiMock = mFixture.Freeze<Mock<IAiInferenceService>>();
+        mSettings = BuildSettings(quorum: 0.5);
     }
 
     [TestMethod]
     public void Evaluate_NoModulesRegistered_ReturnsNone()
     {
         // Arrange
-        var sut = new DecisionEngine(BuildSettings(quorum: 0.5));
+        var sut = new DecisionEngine(mSettings);
 
         // Act
         var result = sut.Evaluate();
@@ -39,7 +41,7 @@ public class DecisionEngineTests
     public void Register_PlainStrategyModule_NeverInvokesAttachAi()
     {
         // Arrange
-        var sut = new DecisionEngine(BuildSettings(quorum: 0.5), mAiMock.Object);
+        var sut = new DecisionEngine(mSettings, mAiMock.Object);
         var module = BuildModuleMock("M1", TradeAction.BUY);
 
         // Act
@@ -53,7 +55,7 @@ public class DecisionEngineTests
     public void Register_AiModule_WhenAiServiceProvided_CallsAttachAi()
     {
         // Arrange
-        var sut = new DecisionEngine(BuildSettings(quorum: 0.5), mAiMock.Object);
+        var sut = new DecisionEngine(mSettings, mAiMock.Object);
         var aiModule = new Mock<IAiStrategyModule>();
         aiModule.SetupGet(m => m.Name).Returns("AiM");
 
@@ -68,7 +70,7 @@ public class DecisionEngineTests
     public void Register_AiModule_WhenAiServiceNull_DoesNotCallAttachAi()
     {
         // Arrange
-        var sut = new DecisionEngine(BuildSettings(quorum: 0.5), ai: null);
+        var sut = new DecisionEngine(mSettings, ai: null);
         var aiModule = new Mock<IAiStrategyModule>();
         aiModule.SetupGet(m => m.Name).Returns("AiM");
 
@@ -83,7 +85,7 @@ public class DecisionEngineTests
     public void GetActiveModules_AfterRegister_ContainsAllNamesInOrder()
     {
         // Arrange
-        var sut = new DecisionEngine(BuildSettings(quorum: 0.5));
+        var sut = new DecisionEngine(mSettings);
         sut.Register(BuildModuleMock("M1", TradeAction.NONE).Object);
         sut.Register(BuildModuleMock("M2", TradeAction.NONE).Object);
         sut.Register(BuildModuleMock("M3", TradeAction.NONE).Object);
@@ -99,7 +101,7 @@ public class DecisionEngineTests
     public void Evaluate_AllModulesAgree_AboveQuorum_ReturnsThatAction()
     {
         // Arrange
-        var sut = new DecisionEngine(BuildSettings(quorum: 0.5));
+        var sut = new DecisionEngine(mSettings);
         sut.Register(BuildModuleMock("A", TradeAction.BUY).Object);
         sut.Register(BuildModuleMock("B", TradeAction.BUY).Object);
         sut.Register(BuildModuleMock("C", TradeAction.BUY).Object);
@@ -115,7 +117,7 @@ public class DecisionEngineTests
     public void Evaluate_TopVoteJustAboveQuorum_ReturnsTopAction()
     {
         // Arrange — 2 of 3 BUY (0.666 > 0.5)
-        var sut = new DecisionEngine(BuildSettings(quorum: 0.5));
+        var sut = new DecisionEngine(mSettings);
         sut.Register(BuildModuleMock("A", TradeAction.BUY).Object);
         sut.Register(BuildModuleMock("B", TradeAction.BUY).Object);
         sut.Register(BuildModuleMock("C", TradeAction.SELL).Object);
@@ -131,7 +133,7 @@ public class DecisionEngineTests
     public void Evaluate_TopVoteAtExactQuorum_ReturnsNone()
     {
         // Arrange — quorum is strictly > , so 1/2 BUY at quorum 0.5 returns NONE
-        var sut = new DecisionEngine(BuildSettings(quorum: 0.5));
+        var sut = new DecisionEngine(mSettings);
         sut.Register(BuildModuleMock("A", TradeAction.BUY).Object);
         sut.Register(BuildModuleMock("B", TradeAction.SELL).Object);
 
@@ -146,7 +148,7 @@ public class DecisionEngineTests
     public void Evaluate_BelowQuorum_ReturnsNone()
     {
         // Arrange — 1/3 BUY, 1/3 SELL, 1/3 NONE; top count is 1, ratio 0.333 not > 0.5
-        var sut = new DecisionEngine(BuildSettings(quorum: 0.5));
+        var sut = new DecisionEngine(mSettings);
         sut.Register(BuildModuleMock("A", TradeAction.BUY).Object);
         sut.Register(BuildModuleMock("B", TradeAction.SELL).Object);
         sut.Register(BuildModuleMock("C", TradeAction.NONE).Object);
@@ -162,7 +164,7 @@ public class DecisionEngineTests
     public void Evaluate_OneModuleThrows_TreatedAsNone_OthersStillCounted()
     {
         // Arrange — 2 BUY + 1 throwing; quorum 0.5 → 2/3 BUY wins
-        var sut = new DecisionEngine(BuildSettings(quorum: 0.5));
+        var sut = new DecisionEngine(mSettings);
         sut.Register(BuildModuleMock("A", TradeAction.BUY).Object);
         sut.Register(BuildModuleMock("B", TradeAction.BUY).Object);
         sut.Register(BuildThrowingModuleMock("C").Object);
@@ -179,7 +181,7 @@ public class DecisionEngineTests
     {
         // Arrange — all throw → all NONE → top is NONE; even if ratio > quorum,
         // NONE is the returned action.
-        var sut = new DecisionEngine(BuildSettings(quorum: 0.5));
+        var sut = new DecisionEngine(mSettings);
         sut.Register(BuildThrowingModuleMock("A").Object);
         sut.Register(BuildThrowingModuleMock("B").Object);
         sut.Register(BuildThrowingModuleMock("C").Object);
@@ -195,7 +197,7 @@ public class DecisionEngineTests
     public void Warmup_CallsWarmupOnAllRegisteredModules()
     {
         // Arrange
-        var sut = new DecisionEngine(BuildSettings(quorum: 0.5));
+        var sut = new DecisionEngine(mSettings);
         var a = BuildModuleMock("A", TradeAction.NONE);
         var b = BuildModuleMock("B", TradeAction.NONE);
         sut.Register(a.Object);
@@ -213,7 +215,7 @@ public class DecisionEngineTests
     public void Warmup_OneModuleThrows_OthersStillWarmedUp()
     {
         // Arrange
-        var sut = new DecisionEngine(BuildSettings(quorum: 0.5));
+        var sut = new DecisionEngine(mSettings);
         var throwing = new Mock<IStrategyModule>();
         throwing.SetupGet(m => m.Name).Returns("Bad");
         throwing.Setup(m => m.Warmup()).Throws(new InvalidOperationException("boom"));
