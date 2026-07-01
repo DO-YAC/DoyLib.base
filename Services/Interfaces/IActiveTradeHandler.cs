@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace doylib.Services.Interfaces;
 
-internal interface IActiveTradeHandler
+public interface IActiveTradeHandler
 {
     IReadOnlyDictionary<Guid, ActiveTrade> ActiveTrades { get; }
 
@@ -20,7 +20,7 @@ internal interface IActiveTradeHandler
     /// </summary>
     /// <param name="action"></param>
     /// <param name="doyTradeId"></param>
-    bool ExampleHandle(TradeAction action, out Guid? doyTradeId);
+    bool ExampleHandle(DoyVestment.Framework.Models.Enums.TradeAction action, out Guid? doyTradeId);
 
     public void OnTradeClosedSuccessfully(object? sender, Guid e);
 }

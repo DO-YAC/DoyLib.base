@@ -242,7 +242,8 @@ public class DecisionEngineTests
             Symbol: "EURUSD",
             Quorum: quorum,
             MaxCandleWindowSize: 100,
-            Ai: null);
+            Ai: null,
+            ApiBaseUrl: "http://localhost:3000");
     }
 
     private static Mock<IStrategyModule> BuildModuleMock(string name, TradeAction evaluateResult)

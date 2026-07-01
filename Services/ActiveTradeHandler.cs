@@ -9,10 +9,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using TradeAction = DoyVestment.Framework.Models.Enums.TradeAction;
 
 namespace doylib.Services;
 
-internal class ActiveTradeHandler : IActiveTradeHandler
+public class ActiveTradeHandler : IActiveTradeHandler
 {
     private readonly ConcurrentDictionary<Guid, ActiveTrade> mActiveTrades;
     private readonly IDoyExceptionHandler mDoyExceptionHandler;
@@ -82,9 +83,9 @@ internal class ActiveTradeHandler : IActiveTradeHandler
     /// </summary>
     /// <param name="action"></param>
     /// <param name="doyTradeId"></param>
-    public bool ExampleHandle(TradeAction action, out Guid? doyTradeId)
+    public bool ExampleHandle(DoyVestment.Framework.Models.Enums.TradeAction action, out Guid? doyTradeId)
     {
-        if (action == TradeAction.NONE)
+        if (action == DoyVestment.Framework.Models.Enums.TradeAction.NONE)
         {
             doyTradeId = null;
             return false;
@@ -103,7 +104,7 @@ internal class ActiveTradeHandler : IActiveTradeHandler
 
     private static bool TpOrSlHit(ActiveTrade trade, Candle candle)
     {
-        if (trade.TradeAction == TradeAction.BUY)
+        if (trade.TradeAction == DoyVestment.Framework.Models.Enums.TradeAction.BUY)
         {
             var tpHit = candle.High >= trade.TP;
             var slHit = candle.Low <= trade.SL;

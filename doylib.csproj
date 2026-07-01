@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)' != 'Debug'">
-    <PackageReference Include="DoyVestment.Framework" Version="1.2.1" />
+    <PackageReference Include="DoyVestment.Framework" Version="1.2.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,15 +33,11 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
-  <Target Name="CopyToSignalhandlerStrategy"
-          AfterTargets="Build"
-          Condition="'$(Configuration)' == 'Debug'">
+  <Target Name="CopyToSignalhandlerStrategy" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
     <ItemGroup>
       <_DoylibArtifacts Include="$(TargetDir)doylib.dll;$(TargetDir)doylib.pdb" />
     </ItemGroup>
-    <Copy SourceFiles="@(_DoylibArtifacts)"
-          DestinationFolder="$(MSBuildThisFileDirectory)../DoyVestment/DoyVestment.Signalhandler/Strategy"
-          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_DoylibArtifacts)" DestinationFolder="$(MSBuildThisFileDirectory)../DoyVestment/DoyVestment.Signalhandler/Strategy" SkipUnchangedFiles="true" />
   </Target>
 
 </Project>

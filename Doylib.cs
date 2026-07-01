@@ -1,4 +1,6 @@
 using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 using doylib.Ai;
 using doylib.Ai.Interfaces;
 using doylib.Logging;
@@ -11,6 +13,7 @@ using DoyVestment.Framework.Models.Enums;
 using DoyVestment.Framework.Services;
 using DoyVestment.Framework.Services.Interfaces;
 using Microsoft.Extensions.Logging;
+using TradeAction = DoyVestment.Framework.Models.Enums.TradeAction;
 
 namespace doylib;
 
@@ -22,6 +25,9 @@ public class Doylib : IStrategy, IDisposable
     private readonly DecisionEngine mDecisionEngine;
     private readonly IActiveTradeHandler mActiveTradeHandler;
     private readonly IAiInferenceService? mAiInferenceService;
+    private readonly ITradeBackupClient mTradeBackupClient;
+    private readonly IBackupService mBackupService;
+    private readonly DoyLibSettings mSettings;
 
     private event EventHandler<Guid> mTradeClosedSuccessfully;
 
@@ -33,6 +39,11 @@ public class Doylib : IStrategy, IDisposable
         mCandleWindowService = new CandleWindowService(LoggerProvider.CreateLogger<CandleWindowService>(), mDoyExceptionHandler);
         mCandleWindowService.Initialize(settings.MaxCandleWindowSize);
         mActiveTradeHandler = new ActiveTradeHandler(mDoyExceptionHandler);
+
+        var backupHttpClient = new HttpClient();
+        mTradeBackupClient = new TradeBackupClient(settings.ApiBaseUrl, backupHttpClient);
+
+        mBackupService = new BackupService(mTradeBackupClient, mActiveTradeHandler);
 
         if (settings.Ai != null && settings.Ai.Enabled)
         {
@@ -46,6 +57,8 @@ public class Doylib : IStrategy, IDisposable
         mDecisionEngine.Register(new ExampleAiModule(mCandleWindowService));
 
         mTradeClosedSuccessfully += mActiveTradeHandler.OnTradeClosedSuccessfully;
+
+        mSettings = settings;
     }
 
     public DoyLibTradeResponse Execute(Candle candle)
@@ -85,6 +98,11 @@ public class Doylib : IStrategy, IDisposable
         mActiveTradeHandler.AddActiveTrade(response);
 
         return response;
+    }
+
+    public async Task RestoreActiveTrades()
+    {
+        await mBackupService.RestoreActiveTrades(mSettings.Symbol);
     }
 
     public void Warmup()
