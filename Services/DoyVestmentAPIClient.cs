@@ -591,12 +591,12 @@ namespace doylib.Services
     {
         /// <returns>Backups Queried successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<SwaggerResponse<DtoActiveTradesBackupResponse>> BackupGetAsync(string ticker);
+        System.Threading.Tasks.Task<SwaggerResponse<DtoActiveTradesBackupResponse>> BackupGetAsync();
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Backups Queried successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<SwaggerResponse<DtoActiveTradesBackupResponse>> BackupGetAsync(string ticker, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<SwaggerResponse<DtoActiveTradesBackupResponse>> BackupGetAsync(System.Threading.CancellationToken cancellationToken);
 
         /// <returns>Backup added successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -668,19 +668,16 @@ namespace doylib.Services
 
         /// <returns>Backups Queried successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<SwaggerResponse<DtoActiveTradesBackupResponse>> BackupGetAsync(string ticker)
+        public virtual System.Threading.Tasks.Task<SwaggerResponse<DtoActiveTradesBackupResponse>> BackupGetAsync()
         {
-            return BackupGetAsync(ticker, System.Threading.CancellationToken.None);
+            return BackupGetAsync(System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Backups Queried successfully</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<SwaggerResponse<DtoActiveTradesBackupResponse>> BackupGetAsync(string ticker, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<SwaggerResponse<DtoActiveTradesBackupResponse>> BackupGetAsync(System.Threading.CancellationToken cancellationToken)
         {
-            if (ticker == null)
-                throw new System.ArgumentNullException("ticker");
-
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -692,9 +689,8 @@ namespace doylib.Services
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "api/v1/trade/backup/{ticker}"
-                    urlBuilder_.Append("api/v1/trade/backup/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(ticker, System.Globalization.CultureInfo.InvariantCulture)));
+                    // Operation Path: "api/v1/trade/backup"
+                    urlBuilder_.Append("api/v1/trade/backup");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
