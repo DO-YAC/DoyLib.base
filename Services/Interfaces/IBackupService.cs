@@ -4,6 +4,6 @@ namespace doylib.Services.Interfaces
 {
     public interface IBackupService
     {
-        Task RestoreActiveTrades(string symbol);
+        Task RestoreActiveTrades();
     }
 }

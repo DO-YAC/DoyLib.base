@@ -102,7 +102,7 @@ public class Doylib : IStrategy, IDisposable
 
     public async Task RestoreActiveTrades()
     {
-        await mBackupService.RestoreActiveTrades(mSettings.Symbol);
+        await mBackupService.RestoreActiveTrades();
     }
 
     public void Warmup()
